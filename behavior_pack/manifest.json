@@ -1,0 +1,58 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Chibi Companions — Mizuki Behavior",
+    "description": "Little Snowdrop follows, gathers, and sorts alongside her player.",
+    "uuid": "e9167a09-4b5a-4a0f-a192-0ece859333b3",
+    "version": [
+      2,
+      3,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      26,
+      50
+    ]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "5c506150-fc2d-434b-94b7-87238c76c227",
+      "version": [
+        2,
+        3,
+        0
+      ]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "fdc265fa-221d-4297-b3ba-da1b12688290",
+      "version": [
+        2,
+        3,
+        0
+      ],
+      "entry": "scripts/main.js"
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "966cba6a-1b13-49b7-a42c-4c50fa4913b8",
+      "version": [
+        2,
+        3,
+        0
+      ]
+    },
+    {
+      "module_name": "@minecraft/server",
+      "version": "2.10.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "2.0.0"
+    }
+  ]
+}

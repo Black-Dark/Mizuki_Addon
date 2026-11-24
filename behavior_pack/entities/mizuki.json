@@ -1,0 +1,186 @@
+{
+  "format_version": "1.21.0",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "ochub:mizuki_todoroki",
+      "is_spawnable": true,
+      "is_summonable": true,
+      "is_experimental": false,
+      "properties": {
+        "cc:pose": {
+          "type": "enum",
+          "values": [
+            "idle",
+            "carry",
+            "mine",
+            "chop",
+            "gather",
+            "pickup",
+            "deposit",
+            "happy",
+            "climb"
+          ],
+          "default": "idle",
+          "client_sync": true
+        }
+      }
+    },
+    "component_groups": {
+      "unbefriended": {
+        "minecraft:behavior.random_stroll": {
+          "priority": 6,
+          "speed_multiplier": 0.7
+        },
+        "minecraft:behavior.look_at_player": {
+          "priority": 5,
+          "look_distance": 7,
+          "probability": 0.06
+        },
+        "minecraft:behavior.random_look_around": {
+          "priority": 7
+        }
+      },
+      "companion": {
+        "minecraft:is_tamed": {},
+        "minecraft:healable": {
+          "items": [
+            {
+              "item": "minecraft:dried_kelp",
+              "heal_amount": 4
+            }
+          ]
+        }
+      },
+      "cc:follow": {
+        "minecraft:behavior.follow_owner": {
+          "priority": 3,
+          "speed_multiplier": 1.15,
+          "start_distance": 4,
+          "stop_distance": 2,
+          "can_teleport": false
+        },
+        "minecraft:behavior.look_at_player": {
+          "priority": 5,
+          "look_distance": 7,
+          "probability": 0.06
+        },
+        "minecraft:behavior.random_look_around": {
+          "priority": 7
+        }
+      }
+    },
+    "components": {
+      "minecraft:type_family": {
+        "family": [
+          "mizuki",
+          "mob"
+        ]
+      },
+      "minecraft:health": {
+        "value": 24,
+        "max": 24
+      },
+      "minecraft:collision_box": {
+        "width": 0.62,
+        "height": 1.67
+      },
+      "minecraft:movement": {
+        "value": 0.24
+      },
+      "minecraft:movement.basic": {},
+      "minecraft:jump.static": {},
+      "minecraft:navigation.walk": {
+        "can_path_over_water": false,
+        "avoid_damage_blocks": true,
+        "avoid_water": true,
+        "avoid_portals": true
+      },
+      "minecraft:physics": {},
+      "minecraft:persistent": {},
+      "minecraft:nameable": {},
+      "minecraft:breathable": {
+        "total_supply": 15,
+        "suffocate_time": 0,
+        "breathes_water": true
+      },
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushable_by_piston": true
+      },
+      "minecraft:behavior.float": {
+        "priority": 0
+      },
+      "minecraft:tameable": {
+        "probability": 0.0,
+        "tame_items": [],
+        "tame_event": {
+          "event": "ochub:on_befriend",
+          "target": "self"
+        }
+      },
+      "minecraft:inventory": {
+        "container_type": "inventory",
+        "inventory_size": 9,
+        "restrict_to_owner": true,
+        "can_be_siphoned_from": false,
+        "private": false
+      },
+      "minecraft:interact": {
+        "interactions": [
+          {
+            "on_interact": {
+              "event": "cc:interacted",
+              "target": "self"
+            },
+            "interact_text": "action.interact.cc.mizuki",
+            "swing": true,
+            "use_item": false
+          }
+        ]
+      }
+    },
+    "events": {
+      "minecraft:entity_spawned": {
+        "add": {
+          "component_groups": [
+            "unbefriended"
+          ]
+        }
+      },
+      "ochub:on_befriend": {
+        "remove": {
+          "component_groups": [
+            "unbefriended"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "companion",
+            "cc:follow"
+          ]
+        }
+      },
+      "cc:resume_follow": {
+        "remove": {
+          "component_groups": [
+            "unbefriended"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "companion",
+            "cc:follow"
+          ]
+        }
+      },
+      "cc:pause_follow": {
+        "remove": {
+          "component_groups": [
+            "cc:follow"
+          ]
+        }
+      },
+      "cc:interacted": {}
+    }
+  }
+}

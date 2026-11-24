@@ -1,0 +1,43 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "ochub:mizuki_todoroki",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/entity/mizuki"
+      },
+      "geometry": {
+        "default": "geometry.ochub.mizuki"
+      },
+      "animations": {
+        "walk": "animation.ochub.mizuki.walk",
+        "look": "animation.ochub.mizuki.look",
+        "idle": "animation.ochub.mizuki.idle",
+        "carry": "animation.ochub.mizuki.carry",
+        "mine": "animation.ochub.mizuki.mine",
+        "chop": "animation.ochub.mizuki.chop",
+        "gather": "animation.ochub.mizuki.gather",
+        "pickup": "animation.ochub.mizuki.pickup",
+        "deposit": "animation.ochub.mizuki.deposit",
+        "happy": "animation.ochub.mizuki.happy",
+        "pose": "controller.animation.ochub.mizuki.pose",
+        "climb": "animation.ochub.mizuki.climb"
+      },
+      "scripts": {
+        "animate": [
+          "pose"
+        ]
+      },
+      "render_controllers": [
+        "controller.render.ochub.mizuki"
+      ],
+      "spawn_egg": {
+        "base_color": "#DCE9FA",
+        "overlay_color": "#718CC1"
+      }
+    }
+  }
+}

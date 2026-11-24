@@ -1,0 +1,309 @@
+{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.ochub.mizuki.pose": {
+      "initial_state": "default",
+      "states": {
+        "default": {
+          "animations": [
+            {
+              "idle": "1.0 - math.clamp(query.modified_move_speed * 6.0, 0.0, 1.0)"
+            },
+            {
+              "walk": "math.clamp(query.modified_move_speed * 6.0, 0.0, 1.0)"
+            },
+            {
+              "look": "1.0 - math.clamp(query.modified_move_speed * 8.0, 0.0, 1.0)"
+            }
+          ],
+          "blend_transition": 0.12,
+          "transitions": [
+            {
+              "carry": "query.property('cc:pose') == 'carry'"
+            },
+            {
+              "mine": "query.property('cc:pose') == 'mine'"
+            },
+            {
+              "chop": "query.property('cc:pose') == 'chop'"
+            },
+            {
+              "gather": "query.property('cc:pose') == 'gather'"
+            },
+            {
+              "pickup": "query.property('cc:pose') == 'pickup'"
+            },
+            {
+              "deposit": "query.property('cc:pose') == 'deposit'"
+            },
+            {
+              "happy": "query.property('cc:pose') == 'happy'"
+            },
+            {
+              "climb": "query.property('cc:pose') == 'climb'"
+            }
+          ]
+        },
+        "carry": {
+          "animations": [
+            "carry",
+            {
+              "walk": "math.clamp(query.modified_move_speed * 4.0, 0.0, 0.65)"
+            }
+          ],
+          "blend_transition": 0.1,
+          "transitions": [
+            {
+              "default": "query.property('cc:pose') == 'idle'"
+            },
+            {
+              "mine": "query.property('cc:pose') == 'mine'"
+            },
+            {
+              "chop": "query.property('cc:pose') == 'chop'"
+            },
+            {
+              "gather": "query.property('cc:pose') == 'gather'"
+            },
+            {
+              "pickup": "query.property('cc:pose') == 'pickup'"
+            },
+            {
+              "deposit": "query.property('cc:pose') == 'deposit'"
+            },
+            {
+              "happy": "query.property('cc:pose') == 'happy'"
+            },
+            {
+              "climb": "query.property('cc:pose') == 'climb'"
+            }
+          ]
+        },
+        "mine": {
+          "animations": [
+            "mine"
+          ],
+          "blend_transition": 0.09,
+          "transitions": [
+            {
+              "default": "query.property('cc:pose') == 'idle'"
+            },
+            {
+              "carry": "query.property('cc:pose') == 'carry'"
+            },
+            {
+              "chop": "query.property('cc:pose') == 'chop'"
+            },
+            {
+              "gather": "query.property('cc:pose') == 'gather'"
+            },
+            {
+              "pickup": "query.property('cc:pose') == 'pickup'"
+            },
+            {
+              "deposit": "query.property('cc:pose') == 'deposit'"
+            },
+            {
+              "happy": "query.property('cc:pose') == 'happy'"
+            },
+            {
+              "climb": "query.property('cc:pose') == 'climb'"
+            }
+          ]
+        },
+        "chop": {
+          "animations": [
+            "chop"
+          ],
+          "blend_transition": 0.09,
+          "transitions": [
+            {
+              "default": "query.property('cc:pose') == 'idle'"
+            },
+            {
+              "carry": "query.property('cc:pose') == 'carry'"
+            },
+            {
+              "mine": "query.property('cc:pose') == 'mine'"
+            },
+            {
+              "gather": "query.property('cc:pose') == 'gather'"
+            },
+            {
+              "pickup": "query.property('cc:pose') == 'pickup'"
+            },
+            {
+              "deposit": "query.property('cc:pose') == 'deposit'"
+            },
+            {
+              "happy": "query.property('cc:pose') == 'happy'"
+            },
+            {
+              "climb": "query.property('cc:pose') == 'climb'"
+            }
+          ]
+        },
+        "gather": {
+          "animations": [
+            "gather"
+          ],
+          "blend_transition": 0.09,
+          "transitions": [
+            {
+              "default": "query.property('cc:pose') == 'idle'"
+            },
+            {
+              "carry": "query.property('cc:pose') == 'carry'"
+            },
+            {
+              "mine": "query.property('cc:pose') == 'mine'"
+            },
+            {
+              "chop": "query.property('cc:pose') == 'chop'"
+            },
+            {
+              "pickup": "query.property('cc:pose') == 'pickup'"
+            },
+            {
+              "deposit": "query.property('cc:pose') == 'deposit'"
+            },
+            {
+              "happy": "query.property('cc:pose') == 'happy'"
+            },
+            {
+              "climb": "query.property('cc:pose') == 'climb'"
+            }
+          ]
+        },
+        "pickup": {
+          "animations": [
+            "pickup"
+          ],
+          "blend_transition": 0.09,
+          "transitions": [
+            {
+              "default": "query.property('cc:pose') == 'idle'"
+            },
+            {
+              "carry": "query.property('cc:pose') == 'carry'"
+            },
+            {
+              "mine": "query.property('cc:pose') == 'mine'"
+            },
+            {
+              "chop": "query.property('cc:pose') == 'chop'"
+            },
+            {
+              "gather": "query.property('cc:pose') == 'gather'"
+            },
+            {
+              "deposit": "query.property('cc:pose') == 'deposit'"
+            },
+            {
+              "happy": "query.property('cc:pose') == 'happy'"
+            },
+            {
+              "climb": "query.property('cc:pose') == 'climb'"
+            }
+          ]
+        },
+        "deposit": {
+          "animations": [
+            "deposit"
+          ],
+          "blend_transition": 0.09,
+          "transitions": [
+            {
+              "default": "query.property('cc:pose') == 'idle'"
+            },
+            {
+              "carry": "query.property('cc:pose') == 'carry'"
+            },
+            {
+              "mine": "query.property('cc:pose') == 'mine'"
+            },
+            {
+              "chop": "query.property('cc:pose') == 'chop'"
+            },
+            {
+              "gather": "query.property('cc:pose') == 'gather'"
+            },
+            {
+              "pickup": "query.property('cc:pose') == 'pickup'"
+            },
+            {
+              "happy": "query.property('cc:pose') == 'happy'"
+            },
+            {
+              "climb": "query.property('cc:pose') == 'climb'"
+            }
+          ]
+        },
+        "happy": {
+          "animations": [
+            "happy"
+          ],
+          "blend_transition": 0.09,
+          "transitions": [
+            {
+              "default": "query.property('cc:pose') == 'idle'"
+            },
+            {
+              "carry": "query.property('cc:pose') == 'carry'"
+            },
+            {
+              "mine": "query.property('cc:pose') == 'mine'"
+            },
+            {
+              "chop": "query.property('cc:pose') == 'chop'"
+            },
+            {
+              "gather": "query.property('cc:pose') == 'gather'"
+            },
+            {
+              "pickup": "query.property('cc:pose') == 'pickup'"
+            },
+            {
+              "deposit": "query.property('cc:pose') == 'deposit'"
+            },
+            {
+              "climb": "query.property('cc:pose') == 'climb'"
+            }
+          ]
+        },
+        "climb": {
+          "animations": [
+            "climb"
+          ],
+          "blend_transition": 0.1,
+          "transitions": [
+            {
+              "default": "query.property('cc:pose') == 'idle'"
+            },
+            {
+              "carry": "query.property('cc:pose') == 'carry'"
+            },
+            {
+              "mine": "query.property('cc:pose') == 'mine'"
+            },
+            {
+              "chop": "query.property('cc:pose') == 'chop'"
+            },
+            {
+              "gather": "query.property('cc:pose') == 'gather'"
+            },
+            {
+              "pickup": "query.property('cc:pose') == 'pickup'"
+            },
+            {
+              "deposit": "query.property('cc:pose') == 'deposit'"
+            },
+            {
+              "happy": "query.property('cc:pose') == 'happy'"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
