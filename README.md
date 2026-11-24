@@ -1,6 +1,6 @@
 # Mizuki Workshop
 
-The starting point is the supplied Chibi_Companions_Mizuki-3.0.mcaddon. Its two internal pack versions are 2.3.0. The workshop keeps those manifests and gameplay files intact.
+The starting point is the supplied Chibi_Companions_Mizuki-3.0.mcaddon. The workshop preserves the existing pack and module UUIDs so Minecraft can recognize updates.
 
 ## Where to work
 
@@ -15,6 +15,16 @@ The starting point is the supplied Chibi_Companions_Mizuki-3.0.mcaddon. Its two 
 Use `/chibi:movehouse` while standing at one corner of the house, then run it again at the opposite upper corner. Use `/chibi:packhouse` to have the nearby companion move supported blocks into its dedicated Moving Inventory (slots 10–36); the regular gathering backpack remains in slots 1–9. The pack operation refuses non-empty containers and rolls the selected blocks back if an inventory write fails. `/chibi:take` transfers both inventories to the player.
 
 The current pack supports crafting/enchanting tables, workstations, anvils, jukeboxes, bells, campfires, furnaces, smokers, brewing stands, chests and barrels. This is a block-item move: it does not preserve non-empty container contents or unsupported blocks. In multiplayer, mark only an area you are authorized to edit; the add-on does not currently provide land-claim ownership checks.
+
+### Crafting moving and companion items
+
+- **Moving Box:** six paper and two planks. House packing uses one box per nine supported blocks.
+- **Packing Tape:** one slimeball and one paper makes two rolls. Packing uses one roll per Moving Box.
+- **Companion Treat:** dried kelp, wheat and sweet berries make three treats. Treats can be used to befriend or heal a companion.
+- **Companion Toy:** four string and one wool. Use it on your companion for a happy reaction; the toy is reusable.
+- **Snowdrop Whistle:** the existing crafted whistle still opens the companion menu.
+
+The moving boxes and tape are consumed only after the pack operation succeeds. The packed blocks go into the companion's Moving Inventory; `/chibi:take` retrieves them at the new location.
 
 ## Work together
 
