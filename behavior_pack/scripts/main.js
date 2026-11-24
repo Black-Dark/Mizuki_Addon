@@ -24,6 +24,14 @@ const HOUSE_BLOCKS = new Set((
   "minecraft:bell minecraft:campfire minecraft:soul_campfire minecraft:furnace minecraft:blast_furnace " +
   "minecraft:smoker minecraft:brewing_stand minecraft:chest minecraft:barrel"
 ).split(" "));
+const CRAFTING_RECIPES = [
+  { name: "Oak Planks", output: "minecraft:oak_planks", count: 4, ingredients: [["minecraft:oak_log", 1]] },
+  { name: "Sticks", output: "minecraft:stick", count: 4, ingredients: [["minecraft:oak_planks", 2]] },
+  { name: "Moving Box", output: "cc:moving_box", count: 1, ingredients: [["minecraft:paper", 6], ["minecraft:oak_planks", 2]] },
+  { name: "Packing Tape", output: "cc:packing_tape", count: 2, ingredients: [["minecraft:slime_ball", 1], ["minecraft:paper", 1]] },
+  { name: "Companion Treats", output: "cc:companion_treat", count: 3, ingredients: [["minecraft:dried_kelp", 1], ["minecraft:wheat", 1], ["minecraft:sweet_berries", 1]] },
+  { name: "Companion Toy", output: "cc:companion_toy", count: 1, ingredients: [["minecraft:string", 4], ["minecraft:white_wool", 1]] }
+];
 
 const stateKey = "cc:pose";
 const ownerKey = "cc:owner";
@@ -361,6 +369,156 @@ function packHouse(player) {
   reply(player, `Your companion packed ${blocks.length} household items into the Moving Inventory, using ${crateCount} Moving Box${crateCount === 1 ? "" : "es"} and ${crateCount} roll${crateCount === 1 ? "" : "s"} of Packing Tape.`);
 }
 
+function planCosts(slots, ingredients) {
+  const next = slots.slice();
+  const changes = [];
+  for (const [typeId, amount] of ingredients) {
+    const plan = planRemove(next, typeId, amount);
+    if (!plan) return undefined;
+    for (const change of plan) next[change.slot] = change.after;
+    changes.push(...plan);
+  }
+  return { next, changes };
+}
+
+function nearbyCraftingTable(pet) {
+  return nearby(pet.dimension, pet.location, 4, 2, ["minecraft:crafting_table"]).length > 0;
+}
+
+function craftAtTable(player, recipe) {
+  if (!fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
+  const pet = locate(player);
+  if (!pet || pet.dimension.id !== player.dimension.id || distance2(pet.location, player.location) > 25) {
+    return reply(player, "Bring your companion within five blocks before asking them to craft.");
+  }
+  if (!nearbyCraftingTable(pet)) return reply(player, "Place a crafting table within four blocks of your companion.");
+  const bag = inv(player);
+  if (!bag) return reply(player, "Your inventory is unavailable right now.");
+  const costs = planCosts(snapshot(bag), recipe.ingredients);
+  if (!costs) return reply(player, `You need the listed ingredients for ${recipe.name}.`);
+  const result = new ItemStack(recipe.output, recipe.count);
+  const outputPlan = planInsert(costs.next, [result]);
+  if (!outputPlan) return reply(player, "Make room in your inventory for the crafted item first.");
+  try {
+    commit(bag, costs.changes);
+    commit(bag, outputPlan);
+  } catch (error) {
+    try { restore(bag, costs.changes); } catch (restoreError) { console.warn(`[Chibi Companions] Craft rollback: ${restoreError}`); }
+    console.warn(`[Chibi Companions] Crafting ${recipe.name}: ${error}`);
+    return reply(player, "The craft could not finish, so I restored your ingredients.");
+  }
+  setPose(pet, "gather");
+  pet.dimension.playSound("random.pop", pet.location, { volume: 0.5, pitch: 1.15 });
+  reply(player, `${appearanceOf(pet).name} crafted ${recipe.count} ${recipe.name}.`);
+}
+
+async function openCraftMenu(player) {
+  const pet = locate(player);
+  if (!pet || pet.dimension.id !== player.dimension.id || distance2(pet.location, player.location) > 25) {
+    return reply(player, "Bring your companion within five blocks to open their crafting menu.");
+  }
+  if (!nearbyCraftingTable(pet)) return reply(player, "Place a crafting table within four blocks of your companion.");
+  const form = new ActionFormData().title("Companion Crafting").body("Choose a supported recipe. Your companion will use the nearby crafting table and your inventory.");
+  for (const recipe of CRAFTING_RECIPES) form.button(`${recipe.count} ${recipe.name}`);
+  const result = await form.show(player);
+  if (!player.isValid || result.canceled || result.selection === undefined) return;
+  const selected = CRAFTING_RECIPES[result.selection];
+  if (selected) craftAtTable(player, selected);
+}
+
+function cabinBlueprint(base) {
+  const plan = [];
+  const add = (type, x, y, z) => plan.push({ type, location: { x: base.x + x, y: base.y + y, z: base.z + z } });
+  for (let x = 1; x <= 5; x++) for (let z = 1; z <= 5; z++) add("minecraft:oak_planks", x, 0, z);
+  for (let y = 1; y <= 3; y++) for (let x = 1; x <= 5; x++) for (let z = 1; z <= 5; z++) {
+    if (x !== 1 && x !== 5 && z !== 1 && z !== 5) continue;
+    const doorway = z === 1 && x === 3 && y <= 2;
+    const window = y === 2 && ((z === 1 && (x === 2 || x === 4)) || (z === 5 && x === 3) || (x === 1 && z === 3));
+    if (doorway) continue;
+    add(window ? "minecraft:glass_pane" : "minecraft:oak_planks", x, y, z);
+  }
+  for (let x = 1; x <= 5; x++) for (let z = 1; z <= 5; z++) add("minecraft:oak_planks", x, 4, z);
+  return { plan, ingredients: [["minecraft:oak_planks", 92], ["minecraft:glass_pane", 4]], height: 5, name: "Oak Starter Cabin" };
+}
+
+function watchPostBlueprint(base) {
+  const plan = [];
+  const add = (type, x, y, z) => plan.push({ type, location: { x: base.x + x, y: base.y + y, z: base.z + z } });
+  for (let x = 1; x <= 3; x++) for (let z = 1; z <= 3; z++) add("minecraft:cobblestone", x, 0, z);
+  for (let y = 1; y <= 2; y++) for (let x = 1; x <= 3; x++) for (let z = 1; z <= 3; z++) {
+    if (x !== 1 && x !== 3 && z !== 1 && z !== 3) continue;
+    if (z === 1 && x === 2) continue;
+    add("minecraft:cobblestone", x, y, z);
+  }
+  for (let x = 1; x <= 3; x++) for (let z = 1; z <= 3; z++) add("minecraft:cobblestone", x, 3, z);
+  return { plan, ingredients: [["minecraft:cobblestone", 32]], height: 4, name: "Stone Watch Post" };
+}
+
+function buildStructure(player, blueprintFactory) {
+  if (!fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
+  const pet = locate(player);
+  if (!pet || pet.dimension.id !== player.dimension.id || distance2(pet.location, player.location) > 25) {
+    return reply(player, "Bring your companion within five blocks before asking them to build.");
+  }
+  const standing = cell(player.location);
+  const base = { x: standing.x + 1, y: standing.y, z: standing.z + 1 };
+  const blueprint = blueprintFactory(base);
+  const bag = inv(player);
+  if (!bag) return reply(player, "Your inventory is unavailable right now.");
+  const costs = planCosts(snapshot(bag), blueprint.ingredients);
+  if (!costs) return reply(player, `Gather the materials for the ${blueprint.name} first.`);
+  const dimension = player.dimension;
+  const oldBlocks = [];
+  try {
+    const middle = { x: base.x + 3.5, y: base.y + blueprint.height / 2, z: base.z + 3.5 };
+    const occupied = dimension.getEntities({ location: middle, maxDistance: 5 }).some(entity =>
+      entity.id !== pet.id && entity.typeId !== "minecraft:item"
+      && entity.location.x >= base.x + 1 && entity.location.x < base.x + 6
+      && entity.location.z >= base.z + 1 && entity.location.z < base.z + 6
+      && entity.location.y >= base.y && entity.location.y < base.y + blueprint.height
+    );
+    if (occupied) return reply(player, "Move everyone and nearby mobs clear of the build site first.");
+    for (const entry of blueprint.plan) {
+      const block = dimension.getBlock(entry.location);
+      if (!block?.isAir) return reply(player, "The build site is blocked. Move to a clear, level area and try again.");
+      if (entry.location.y === base.y) {
+        const ground = dimension.getBlock({ x: entry.location.x, y: base.y - 1, z: entry.location.z });
+        if (!ground || ground.isAir || ["minecraft:water", "minecraft:flowing_water", "minecraft:lava", "minecraft:flowing_lava"].includes(ground.typeId)) {
+          return reply(player, "Choose a level site with solid ground under the whole build.");
+        }
+      }
+    }
+    for (const entry of blueprint.plan) {
+      const block = dimension.getBlock(entry.location);
+      oldBlocks.push({ location: entry.location, permutation: block.permutation });
+      block.setType(entry.type);
+    }
+    commit(bag, costs.changes);
+  } catch (error) {
+    try { restore(bag, costs.changes); } catch (restoreError) { console.warn(`[Chibi Companions] Build inventory rollback: ${restoreError}`); }
+    for (const old of oldBlocks.reverse()) {
+      try { dimension.getBlock(old.location)?.setPermutation(old.permutation); }
+      catch (restoreError) { console.warn(`[Chibi Companions] Build rollback: ${restoreError}`); }
+    }
+    console.warn(`[Chibi Companions] ${blueprint.name}: ${error}`);
+    return reply(player, "The build stopped. I restored the site and materials; try a clear, level area.");
+  }
+  setPose(pet, "happy");
+  const task = getTask(player.id);
+  task.happyUntil = now() + 40;
+  reply(player, `${appearanceOf(pet).name} finished the ${blueprint.name}.`);
+}
+
+async function openBuildMenu(player) {
+  const form = new ActionFormData().title("Companion Builds").body("Stand just outside a clear, level building site. Your companion uses materials from your inventory.")
+    .button("Oak Starter Cabin")
+    .button("Stone Watch Post");
+  const result = await form.show(player);
+  if (!player.isValid || result.canceled || result.selection === undefined) return;
+  if (result.selection === 0) buildStructure(player, cabinBlueprint);
+  if (result.selection === 1) buildStructure(player, watchPostBlueprint);
+}
+
 function consumeHeldItem(player, typeId) {
   const equipment = player.getComponent("minecraft:equippable");
   const held = equipment?.getEquipment(EquipmentSlot.Mainhand);
@@ -428,6 +586,8 @@ async function showMenu(player) {
       button("Take supplies", collectBack);
       button("Mark house corner", markHouseCorner);
       button("Pack marked house", packHouse);
+      button("Craft at crafting table", openCraftMenu);
+      button("Build a structure", openBuildMenu);
     }
     if (workPaused) button("Resume automatic work", resumeWork);
     else button("Pause automatic work", pauseWork);
