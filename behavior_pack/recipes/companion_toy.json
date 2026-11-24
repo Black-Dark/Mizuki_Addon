@@ -1,0 +1,14 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:recipe_shaped": {
+    "description": { "identifier": "cc:companion_toy" },
+    "tags": ["crafting_table"],
+    "pattern": [" S ", "SWS", " S "],
+    "key": {
+      "S": { "item": "minecraft:string" },
+      "W": { "tag": "minecraft:wool" }
+    },
+    "unlock": [{ "item": "minecraft:string" }],
+    "result": { "item": "cc:companion_toy", "count": 1 }
+  }
+}
