@@ -1,5 +1,5 @@
 entity.ochub:mizuki_todoroki.name=Mizuki Todoroki
 item.spawn_egg.entity.ochub:mizuki_todoroki.name=Spawn Mizuki Todoroki
-action.interact.cc.mizuki=Interact with Mizuki
+action.interact.cc.mizuki=Interact with companion
 item.cc:snowdrop_whistle.name=Snowdrop Whistle
-action.interact.cc.call_mizuki=Mizuki Menu
+action.interact.cc.call_mizuki=Companion Menu

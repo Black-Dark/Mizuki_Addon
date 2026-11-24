@@ -1,5 +1,6 @@
 import { ActionFormData, FormCancelationReason } from "@minecraft/server-ui";
 import { BlockVolume, CommandPermissionLevel, CustomCommandStatus, GameMode, ItemStack, Player, PlayerPermissionLevel, system, world } from "@minecraft/server";
+import { appearanceKey, appearanceOf, appearances } from "./appearances.js";
 import { chestRank, commit, depositSlot, planInsert, restore, snapshot } from "./inventory.js";
 import { canClimb, cell, center, clearSight, distance2, getBlock, key, ledgeRoute, offset, point, routeTo, routeTree, safeArrival, standable } from "./terrain.js";
 import { eligible, forgetPlacement, harvest, heldTool, makeTrigger, reachableCandidates, trackPlacement, withinWorkRange } from "./resources.js";
@@ -21,7 +22,8 @@ const sortOffKey = "cc:sort_off";
 const workOffKey = "cc:work_off";
 const inv = entity => entity?.getComponent("minecraft:inventory")?.container;
 const tame = entity => entity.getComponent("minecraft:tameable");
-const reply = (player, message) => player.sendMessage(`§b[Mizuki]§r ${message}`);
+const reply = (player, message) => player.sendMessage(`§b[Chibi Companions]§r ${message}`);
+const speak = (player, profile, line) => player.sendMessage(`§b[${profile.voice}]§r ${line}`);
 const now = () => system.currentTick;
 const linkKey = id => `cc:owner-link:${id}`;
 const fullMember = player => player.playerPermissionLevel === PlayerPermissionLevel.Member
@@ -43,6 +45,13 @@ function locate(player) {
   if (typeof id !== "string") return undefined;
   const pet = world.getEntity(id);
   return pet?.isValid && pet.typeId === TYPE && pet.getDynamicProperty(ownerKey) === player.id ? pet : undefined;
+}
+
+function workReply(player, line, fallback) {
+  const pet = locate(player);
+  if (!pet) return reply(player, fallback);
+  const profile = appearanceOf(pet);
+  speak(player, profile, profile[line]);
 }
 
 function remember(pet, ownerId) {
@@ -108,7 +117,7 @@ function spawnCompanion(player) {
     register(player, pet);
   } catch (error) {
     pet.remove();
-    reply(player, "Mizuki could not be summoned. Check the content log.");
+    reply(player, "Your companion could not be summoned. Check the content log.");
     throw error;
   }
   reply(player, "Little Snowdrop is here! Interact with me using an empty hand to open my menu.");
@@ -132,14 +141,17 @@ function recallTo(pet, player) {
   return true;
 }
 
+function reportRecall(player, pet) {
+  if (!recallTo(pet, player)) return reply(player, "I need a clear place to stand nearby.");
+  const profile = appearanceOf(pet);
+  speak(player, profile, profile.recalled);
+}
+
 async function summonOrRecall(player) {
-  if (!fullMember(player) || player.getGameMode() === GameMode.Spectator) return reply(player, "Mizuki needs a player with building permissions.");
-  if (recalls.has(player.id)) return reply(player, "Mizuki is already on her way.");
+  if (!fullMember(player) || player.getGameMode() === GameMode.Spectator) return reply(player, "You need building permissions to call a companion.");
+  if (recalls.has(player.id)) return reply(player, "Your companion is already on the way.");
   const existing = locate(player);
-  if (existing) {
-    reply(player, recallTo(existing, player) ? "I'm right here!" : "I need a clear place to stand nearby.");
-    return;
-  }
+  if (existing) return reportRecall(player, existing);
   // Adopt a tamed Mizuki from the original pack if she is currently loaded.
   for (const dimId of ["overworld", "nether", "the_end"]) {
     for (const old of world.getDimension(dimId).getEntities({ type: TYPE })) {
@@ -147,14 +159,11 @@ async function summonOrRecall(player) {
     }
   }
   const legacy = locate(player);
-  if (legacy) {
-    reply(player, recallTo(legacy, player) ? "Your Mizuki is here!" : "Your Mizuki needs clear ground nearby.");
-    return;
-  }
+  if (legacy) return reportRecall(player, legacy);
   const id = world.getDynamicProperty(linkKey(player.id)) ?? player.getDynamicProperty(packKey);
   if (typeof id !== "string") return spawnCompanion(player);
   const raw = world.getDynamicProperty(`${linkKey(player.id)}:spot`);
-  if (typeof raw !== "string") return reply(player, "Your existing Mizuki is away. Return to where you last saw her.");
+  if (typeof raw !== "string") return reply(player, "Your companion is away. Return to where you last saw them.");
   const { dim, pos } = JSON.parse(raw);
   const dimension = world.getDimension(dim);
   const area = `cc.recall.${player.id}`;
@@ -167,10 +176,12 @@ async function summonOrRecall(player) {
     await areas.createTickingArea(area, options);
     if (!player.isValid) return;
     const loaded = locate(player);
-    if (loaded && recallTo(loaded, player)) reply(player, "I found my way back!");
-    else reply(player, "I couldn’t get back. Make room nearby or revisit my last spot: " + dim + " " + key(pos));
+    if (loaded && recallTo(loaded, player)) {
+      const profile = appearanceOf(loaded);
+      speak(player, profile, profile.recalled);
+    } else reply(player, "I couldn’t get back. Make room nearby or revisit my last spot: " + dim + " " + key(pos));
   } catch (error) {
-    if (player.isValid) reply(player, "Recall couldn’t load Mizuki’s last location.");
+    if (player.isValid) reply(player, "Recall couldn’t load your companion’s last location.");
     console.warn(`[Chibi Companions] Recall: ${error}`);
   } finally {
     recalls.delete(player.id);
@@ -186,13 +197,13 @@ function pauseWork(player) {
     task.workLeft = 0;
     if (task.job?.kind === "work") task.job = undefined;
   }
-  reply(player, "Work paused. I can still collect nearby items and sort them.");
+  workReply(player, "workPaused", "Automatic work paused.");
 }
 
 function collectBack(player, pet = locate(player)) {
   if (!fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
   if (!pet || pet.dimension.id !== player.dimension.id || distance2(pet.location, player.location) > 25) {
-    return reply(player, "Come within five blocks of your Mizuki to take supplies.");
+    return reply(player, "Come within five blocks of your companion to take supplies.");
   }
   const source = inv(pet);
   const destination = inv(player);
@@ -206,7 +217,37 @@ function collectBack(player, pet = locate(player)) {
   }
   const task = tasks.get(player.id);
   if (task) task.nextSort = now() + 100;
-  reply(player, quantity ? `Handed you ${quantity} item(s).` : source.emptySlotsCount === source.size ? "My backpack is empty." : "Make room in your inventory.");
+  const profile = appearanceOf(pet);
+  if (quantity) speak(player, profile, `${profile.handedOver} (${quantity} items transferred)`);
+  else if (source.emptySlotsCount === source.size) speak(player, profile, profile.empty);
+  else reply(player, "Make room in your inventory.");
+}
+
+async function changeAppearance(player, companionId) {
+  await system.waitTicks(1);
+  if (!player.isValid || !fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
+  const pet = locate(player);
+  if (pet?.id !== companionId) return reply(player, "Call your companion before changing its appearance.");
+  const current = pet.getProperty(appearanceKey) ?? 0;
+  const form = new ActionFormData().title("Change Appearance")
+    .body("Choose a character for your companion.");
+  for (const [index, { icon, name, trait }] of appearances.entries()) {
+    const label = index === current ? `${name} (Current)` : name;
+    form.button(`${label}\n${trait}`, `textures/ui/companions/${icon}`);
+  }
+  form.button("Cancel");
+  const result = await form.show(player);
+  if (!player.isValid || !fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
+  if (result.cancelationReason === FormCancelationReason.UserBusy) {
+    return reply(player, "Close your chat or inventory, then reopen the companion menu.");
+  }
+  if (result.canceled || result.selection === undefined) return;
+  const choice = appearances[result.selection];
+  if (!choice || result.selection === current) return;
+  const ownedPet = locate(player);
+  if (ownedPet?.id !== companionId) return reply(player, "Call your companion before changing its appearance.");
+  ownedPet.setProperty(appearanceKey, result.selection);
+  speak(player, choice, choice.greeting);
 }
 
 async function showMenu(player) {
@@ -219,8 +260,10 @@ async function showMenu(player) {
     const bag = inv(pet);
     const sortEnabled = !player.getDynamicProperty(sortOffKey);
     const workPaused = !!player.getDynamicProperty(workOffKey);
-    const form = new ActionFormData().title("Mizuki • Little Snowdrop").body([
-      bag ? `Backpack  ${bag.size - bag.emptySlotsCount} / ${bag.size} slots` : "Mizuki is away or hasn’t joined you yet.",
+    const appearance = appearanceOf(pet);
+    const form = new ActionFormData().title(pet ? appearance.name : "Chibi Companions").body([
+      ...(pet ? [appearance.greeting, ""] : []),
+      bag ? `Backpack  ${bag.size - bag.emptySlotsCount} / ${bag.size} slots` : "Your companion is away or hasn’t joined you yet.",
       `Mining, chopping and harvesting  ${workPaused ? "Paused" : "Automatic"}`,
       `Chest sorting  ${sortEnabled ? "On" : "Paused"}`
     ].join("\n"));
@@ -229,8 +272,12 @@ async function showMenu(player) {
       form.button(label);
       actions.push(action);
     }
-    button("Call Mizuki", summonOrRecall);
-    if (pet) button("Take supplies", collectBack);
+    button("Call companion", summonOrRecall);
+    if (pet) {
+      const companionId = pet.id;
+      button("Change Appearance", () => changeAppearance(player, companionId));
+      button("Take supplies", collectBack);
+    }
     if (workPaused) button("Resume automatic work", resumeWork);
     else button("Pause automatic work", pauseWork);
     button(sortEnabled ? "Pause chest sorting" : "Resume chest sorting", toggleSorting);
@@ -251,7 +298,7 @@ function requestMenu(player) {
 
 function resumeWork(player) {
   player.setDynamicProperty(workOffKey, undefined);
-  reply(player, "I’ll help when you mine ore, chop trees, or harvest crops nearby.");
+  workReply(player, "workResumed", "Automatic work resumed.");
 }
 
 function toggleSorting(player) {
@@ -263,26 +310,26 @@ function toggleSorting(player) {
     if (stopped && task.job?.kind === "sort") task.job = undefined;
     task.nextSort = now() + 20;
   }
-  reply(player, stopped ? "Chest sorting paused. I’ll keep supplies in my backpack." : "Chest sorting resumed.");
+  workReply(player, stopped ? "sortingPaused" : "sortingResumed", stopped ? "Chest sorting paused." : "Chest sorting resumed.");
 }
 
 /** @type {Record<string, [string, (player: import("@minecraft/server").Player) => void | Promise<void>]>} */
 const commands = {
   whistle: ["Add a Snowdrop Whistle to your inventory.", giveWhistle],
-  sorting: ["Pause or resume your Mizuki’s chest sorting.", toggleSorting],
-  call: ["Call your Mizuki or summon her for the first time.", summonOrRecall],
+  sorting: ["Pause or resume your companion’s chest sorting.", toggleSorting],
+  call: ["Call your companion or summon Mizuki for the first time.", summonOrRecall],
   work: ["Resume automatic mining, chopping and harvesting.", resumeWork],
   stop: ["Pause automatic mining, chopping and harvesting.", pauseWork],
   mining: ["Resume automatic work (alias for /chibi:work).", resumeWork],
-  take: ["Take supplies from your Mizuki.", collectBack],
-  status: ["Check your Mizuki’s backpack and work status.", player => {
+  take: ["Take supplies from your companion.", collectBack],
+  status: ["Check your companion’s backpack and work status.", player => {
     const pet = locate(player);
     const backpack = inv(pet);
     const task = tasks.get(player.id);
     const work = player.getDynamicProperty(workOffKey) ? "paused" : "automatic";
     reply(player, `Backpack ${backpack ? `${backpack.size - backpack.emptySlotsCount}/${backpack.size} slots` : "away or unbound"}. Work: ${work}. ${task?.note ?? "Ready."}`);
   }],
-  help: ["Show Mizuki's commands.", player => reply(player, "/chibi:whistle • /chibi:call • /chibi:work • /chibi:stop • /chibi:take • /chibi:sorting • /chibi:mining • /chibi:status")]
+  help: ["Show companion commands.", player => reply(player, "/chibi:whistle • /chibi:call • /chibi:work • /chibi:stop • /chibi:take • /chibi:sorting • /chibi:mining • /chibi:status")]
 };
 
 function giveWhistle(player) {
@@ -292,7 +339,7 @@ function giveWhistle(player) {
   const whistle = new ItemStack("cc:snowdrop_whistle");
   if (bag.contains(whistle)) return reply(player, "A Snowdrop Whistle is already in your inventory.");
   if (bag.addItem(whistle)) return reply(player, "Make one free inventory slot for your whistle.");
-  reply(player, "Snowdrop Whistle ready. Hold it and use it to open Mizuki’s menu.");
+  reply(player, "Snowdrop Whistle ready. Hold it and use it to open the companion menu.");
 }
 
 system.beforeEvents.startup.subscribe(({ customCommandRegistry, itemComponentRegistry }) => {
