@@ -597,6 +597,7 @@ function climbStep(pet, job, tick, avoid) {
   if (time < 24) return "climbing";
   job.path.shift();
   job.climb = undefined;
+  job.useGroundClimb = false;
   return job.path.length ? "walking" : "arrived";
 }
 
@@ -605,6 +606,12 @@ function walkTask(pet, job, tick) {
   if (job.flight) {
     if (!appearanceOf(pet).canFly) return "blocked";
     const outcome = advanceFlight(pet, job.flight, avoid);
+    if (outcome === "blocked" && job.flight.isStep) {
+      abortFlight(pet, job.flight);
+      job.flight = undefined;
+      job.useGroundClimb = true;
+      return "walking";
+    }
     if (outcome !== "arrived") return outcome;
     job.flight = undefined;
     job.path.shift();
@@ -622,22 +629,24 @@ function walkTask(pet, job, tick) {
     return job.path.length ? "walking" : "arrived";
   }
   if (!standable(pet.dimension, step, avoid) || horizontal > 1.8 || Math.abs(delta.y) > 1.4) return "blocked";
-  if (delta.y > 0.6 && pet.isOnGround) {
+  if (delta.y > 0.6) {
+    // The native jump may still be in progress when a step-up job takes over.
+    if (!pet.isOnGround) return "walking";
     const from = cell(here);
     if (!canClimb(pet.dimension, from, step, avoid)) return "blocked";
-    if (appearanceOf(pet).canFly) {
-      job.flight = planFlight(pet.dimension, here, step, avoid);
-      if (job.flight) return "flying";
-      const takeoff = point(from);
-      return distance2(here, takeoff) <= 0.075 ? "blocked" : steer(pet, here, takeoff);
-    }
     const start = point(from);
-    // Center in the lower tile before climbing so his shoulders stay outside the block.
-    if (distance2(here, start) <= 0.075) {
-      job.climb = { from, step, at: tick, start, facing: { x: step.x - from.x, z: step.z - from.z } };
-      return climbStep(pet, job, tick, avoid);
+    const canFly = appearanceOf(pet).canFly && !job.useGroundClimb;
+    // Start from the middle of the lower tile, clear of the ledge face.
+    if (distance2(here, start) > (canFly ? 0.025 : 0.075)) return steer(pet, here, start);
+    if (canFly) {
+      job.flight = planFlight(pet.dimension, here, step, avoid);
+      if (job.flight) {
+        job.flight.isStep = true;
+        return "flying";
+      }
     }
-    return steer(pet, here, start);
+    job.climb = { from, step, at: tick, start, facing: { x: step.x - from.x, z: step.z - from.z } };
+    return climbStep(pet, job, tick, avoid);
   }
   return steer(pet, here, goal);
 }
@@ -774,12 +783,19 @@ function update(player, pet, tick) {
     task.nextSort = tick + 120;
     job = makeSort(pet, inventory, tick);
   }
-  if (!job && gap > 1 && pet.isOnGround && tick >= (task.nextLedge ?? 0)) {
-    if (appearanceOf(pet).canFly) {
+  if (!job && tick >= (task.nextLedge ?? 0)) {
+    const canFly = appearanceOf(pet).canFly;
+    const rise = cell(player.location).y - cell(pet.location).y;
+    if (canFly && rise === 1) {
+      task.nextLedge = tick + 24;
+      const path = ledgeRoute(pet.dimension, pet.location, player.location);
+      if (path) job = { kind: "follow", path, deadline: tick + 130 };
+    }
+    if (!job && canFly && gap > 1 && pet.isOnGround) {
       task.nextLedge = tick + 24;
       const flight = followFlight(pet.dimension, pet.location, player.location);
       if (flight) job = { kind: "follow", path: [flight.landing], flight, deadline: tick + 90 };
-    } else if (player.location.y - pet.location.y >= 0.8) {
+    } else if (!canFly && gap > 1 && pet.isOnGround && player.location.y - pet.location.y >= 0.8) {
       task.nextLedge = tick + 24;
       const path = ledgeRoute(pet.dimension, pet.location, player.location);
       if (path) job = { kind: "follow", path, deadline: tick + 130 };

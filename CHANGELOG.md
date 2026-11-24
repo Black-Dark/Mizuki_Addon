@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.3.1
+
+- Fixed Sora getting stuck at one-block ledges. He lines up his takeoff on the lower tile, and uses the regular climb animation if the game blocks his wing hop.
+
 ## 3.3.0
 
 - Sora flaps over nearby ledges, low obstacles, and short gaps and lands on solid ground. His scheduled jobs use the wing hop for one-block climbs.

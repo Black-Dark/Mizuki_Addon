@@ -48,6 +48,15 @@ test("a work hop clears the ledge before crossing and ends at the original waypo
   assert.ok(pet.moves.every(pos => pos.x < 0.69 || pos.y >= 5));
 });
 
+test("touching a one-block face does not count as intersecting it", () => {
+  const { dimension, pet } = fixture([["1,4,0", stone]]);
+  pet.location = { ...takeoff, x: 0.69 };
+  const landing = { x: 1, y: 5, z: 0 };
+  const flight = planFlight(dimension, pet.location, landing);
+  finish(pet, flight);
+  assert.deepEqual(pet.location, { x: 1.5, y: 5, z: 0.5 });
+});
+
 test("follow flight reaches the owner across a gap and skips level ground", () => {
   const owner = { x: 3.5, y: 4, z: 0.5 };
   const { dimension, pet } = fixture();

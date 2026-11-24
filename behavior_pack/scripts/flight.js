@@ -2,14 +2,15 @@ import { cell, distance2, getBlock, offset, point, standable } from "./terrain.j
 
 const HALF_WIDTH = 0.31;
 const HEIGHT = 1.67;
+const CONTACT_TOLERANCE = 0.0001;
 const MAX_RANGE = 4.5;
 const MAX_RISE = 3;
 const MAX_DROP = 2;
 
 function clearBody(dim, pos, avoid) {
-  for (let x = Math.floor(pos.x - HALF_WIDTH); x <= Math.floor(pos.x + HALF_WIDTH); x++) {
-    for (let z = Math.floor(pos.z - HALF_WIDTH); z <= Math.floor(pos.z + HALF_WIDTH); z++) {
-      for (let y = Math.floor(pos.y); y < Math.ceil(pos.y + HEIGHT); y++) {
+  for (let x = Math.floor(pos.x - HALF_WIDTH + CONTACT_TOLERANCE); x <= Math.floor(pos.x + HALF_WIDTH - CONTACT_TOLERANCE); x++) {
+    for (let z = Math.floor(pos.z - HALF_WIDTH + CONTACT_TOLERANCE); z <= Math.floor(pos.z + HALF_WIDTH - CONTACT_TOLERANCE); z++) {
+      for (let y = Math.floor(pos.y + CONTACT_TOLERANCE); y < Math.ceil(pos.y + HEIGHT - CONTACT_TOLERANCE); y++) {
         if (avoid && x === avoid.x && y === avoid.y && z === avoid.z) return false;
         if (getBlock(dim, { x, y, z })?.isAir !== true) return false;
       }
