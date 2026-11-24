@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.3.0
+
+- Sora flaps over nearby ledges, low obstacles, and short gaps and lands on solid ground. His scheduled jobs use the wing hop for one-block climbs.
+- Added checks for blocked flight paths and unsafe landings. The other five appearances retain their ground movement.
+- In-game Bedrock playtesting is pending.
+
 ## 3.2.0
 
 - Added a per-companion appearance picker with Mizuki, Sora, Yukishiro, Shion, Lucien, and Naoki.

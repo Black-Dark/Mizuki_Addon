@@ -18,7 +18,8 @@
             "pickup",
             "deposit",
             "happy",
-            "climb"
+            "climb",
+            "fly"
           ],
           "default": "idle",
           "client_sync": true

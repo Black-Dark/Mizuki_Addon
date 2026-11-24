@@ -40,7 +40,8 @@
         "idle_yukishiro": "animation.ochub.companion.idle_yukishiro",
         "idle_shion": "animation.ochub.companion.idle_shion",
         "idle_lucien": "animation.ochub.companion.idle_lucien",
-        "idle_naoki": "animation.ochub.companion.idle_naoki"
+        "idle_naoki": "animation.ochub.companion.idle_naoki",
+        "fly": "animation.ochub.companion.sora_fly"
       },
       "scripts": {
         "animate": [
