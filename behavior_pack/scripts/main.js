@@ -14,6 +14,16 @@ const tasks = new Map();
 const claims = new Map();
 const recalls = new Set();
 const lastWarnings = new Map();
+const HOUSE_ITEM_START = 9;
+const HOUSE_ITEM_END = 36;
+const HOUSE_MAX_VOLUME = 4096;
+const HOUSE_BLOCKS = new Set((
+  "minecraft:crafting_table minecraft:enchanting_table minecraft:loom minecraft:stonecutter " +
+  "minecraft:smithing_table minecraft:cartography_table minecraft:fletching_table minecraft:grindstone " +
+  "minecraft:anvil minecraft:chipped_anvil minecraft:damaged_anvil minecraft:jukebox minecraft:note_block " +
+  "minecraft:bell minecraft:campfire minecraft:soul_campfire minecraft:furnace minecraft:blast_furnace " +
+  "minecraft:smoker minecraft:brewing_stand minecraft:chest minecraft:barrel"
+).split(" "));
 
 const stateKey = "cc:pose";
 const ownerKey = "cc:owner";
@@ -21,6 +31,35 @@ const packKey = "cc:entity";
 const sortOffKey = "cc:sort_off";
 const workOffKey = "cc:work_off";
 const inv = entity => entity?.getComponent("minecraft:inventory")?.container;
+const houseKey = player => `cc:move-house:${player.id}`;
+function workInventory(container) {
+  if (!container) return;
+  const size = Math.min(HOUSE_ITEM_START, container.size);
+  return {
+    size,
+    getItem: slot => slot < size ? container.getItem(slot) : undefined,
+    setItem: (slot, item) => { if (slot < size) container.setItem(slot, item); },
+    get emptySlotsCount() {
+      let count = 0;
+      for (let slot = 0; slot < size; slot++) if (!container.getItem(slot)) count++;
+      return count;
+    }
+  };
+}
+function movingItemCount(container) {
+  if (!container) return 0;
+  let count = 0;
+  for (let slot = HOUSE_ITEM_START; slot < Math.min(HOUSE_ITEM_END, container.size); slot++) {
+    if (container.getItem(slot)) count++;
+  }
+  return count;
+}
+function hasContents(block) {
+  const container = block.getComponent("minecraft:inventory")?.container;
+  if (!container) return false;
+  for (let slot = 0; slot < container.size; slot++) if (container.getItem(slot)) return true;
+  return false;
+}
 const tame = entity => entity.getComponent("minecraft:tameable");
 const reply = (player, message) => player.sendMessage(`§b[Chibi Companions]§r ${message}`);
 const speak = (player, profile, line) => player.sendMessage(`§b[${profile.voice}]§r ${line}`);
@@ -223,6 +262,95 @@ function collectBack(player, pet = locate(player)) {
   else reply(player, "Make room in your inventory.");
 }
 
+function markHouseCorner(player) {
+  if (!fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
+  const position = cell(player.location);
+  const raw = player.getDynamicProperty(houseKey(player));
+  if (typeof raw !== "string") {
+    player.setDynamicProperty(houseKey(player), JSON.stringify({ dimension: player.dimension.id, first: position }));
+    return reply(player, "First house corner marked. Stand at the opposite upper corner and run /chibi:movehouse again.");
+  }
+  let selection;
+  try { selection = JSON.parse(raw); } catch { selection = undefined; }
+  if (!selection?.first || selection.dimension !== player.dimension.id) {
+    player.setDynamicProperty(houseKey(player), undefined);
+    return reply(player, "House selection reset. Mark the first corner again in the same dimension.");
+  }
+  const first = selection.first;
+  const volume = (Math.abs(first.x - position.x) + 1) * (Math.abs(first.y - position.y) + 1) * (Math.abs(first.z - position.z) + 1);
+  if (volume > HOUSE_MAX_VOLUME) return reply(player, "That house selection is too large. Keep it within 4,096 blocks and mark the second corner again.");
+  player.setDynamicProperty(houseKey(player), JSON.stringify({
+    dimension: player.dimension.id,
+    min: { x: Math.min(first.x, position.x), y: Math.min(first.y, position.y), z: Math.min(first.z, position.z) },
+    max: { x: Math.max(first.x, position.x), y: Math.max(first.y, position.y), z: Math.max(first.z, position.z) }
+  }));
+  reply(player, "House area marked. Run /chibi:packhouse to have your companion pack supported furniture and appliances.");
+}
+
+function packHouse(player) {
+  if (!fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
+  const pet = locate(player);
+  if (!pet || pet.dimension.id !== player.dimension.id || distance2(pet.location, player.location) > 25) {
+    return reply(player, "Bring your companion within five blocks before packing the house.");
+  }
+  const raw = player.getDynamicProperty(houseKey(player));
+  if (typeof raw !== "string") return reply(player, "Mark two opposite house corners first with /chibi:movehouse.");
+  let area;
+  try { area = JSON.parse(raw); } catch { area = undefined; }
+  if (!area?.min || !area?.max || area.dimension !== player.dimension.id) return reply(player, "Mark the house area again in this dimension.");
+  const dimension = player.dimension;
+  const blocks = [];
+  const items = [];
+  try {
+    for (let x = area.min.x; x <= area.max.x; x++) for (let y = area.min.y; y <= area.max.y; y++) for (let z = area.min.z; z <= area.max.z; z++) {
+      const block = dimension.getBlock({ x, y, z });
+      if (!block || !HOUSE_BLOCKS.has(block.typeId) || hasContents(block)) continue;
+      const stack = block.getItemStack(1, true);
+      if (!stack) continue;
+      blocks.push({ location: { x, y, z }, permutation: block.permutation });
+      items.push(stack);
+    }
+  } catch (error) {
+    console.warn(`[Chibi Companions] House scan: ${error}`);
+    return reply(player, "I couldn’t safely scan every block in that area. Keep the whole house loaded and try again.");
+  }
+  if (!blocks.length) return reply(player, "I found no supported, empty furniture or appliance blocks in the marked area.");
+  const bag = inv(pet);
+  if (!bag || bag.size < HOUSE_ITEM_END) return reply(player, "This companion’s moving inventory is unavailable. Call them again and retry.");
+  const slots = Array.from({ length: HOUSE_ITEM_END - HOUSE_ITEM_START }, (_, index) => bag.getItem(HOUSE_ITEM_START + index));
+  const plan = planInsert(slots, items);
+  if (!plan) return reply(player, "The moving inventory is full. Take supplies or pack a smaller area first.");
+
+  const removed = [];
+  try {
+    for (const entry of blocks) {
+      const block = dimension.getBlock(entry.location);
+      if (!block || !HOUSE_BLOCKS.has(block.typeId) || hasContents(block)) throw new Error("A selected block changed during packing.");
+      block.setType("minecraft:air");
+      removed.push(entry);
+    }
+    const written = [];
+    try {
+      for (const change of plan) {
+        bag.setItem(HOUSE_ITEM_START + change.slot, change.after);
+        written.push(change);
+      }
+    } catch (error) {
+      for (const change of written.reverse()) bag.setItem(HOUSE_ITEM_START + change.slot, change.before);
+      throw error;
+    }
+  } catch (error) {
+    for (const entry of removed.reverse()) {
+      try { dimension.getBlock(entry.location)?.setPermutation(entry.permutation); }
+      catch (restoreError) { console.warn(`[Chibi Companions] House rollback: ${restoreError}`); }
+    }
+    console.warn(`[Chibi Companions] House pack rolled back: ${error}`);
+    return reply(player, "Packing stopped, and I restored the selected blocks. Please try again.");
+  }
+  player.setDynamicProperty(houseKey(player), undefined);
+  reply(player, `Your companion packed ${blocks.length} household items into the Moving Inventory. The house blocks remain recoverable in their original item form.`);
+}
+
 async function changeAppearance(player, companionId) {
   await system.waitTicks(1);
   if (!player.isValid || !fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
@@ -263,7 +391,7 @@ async function showMenu(player) {
     const appearance = appearanceOf(pet);
     const form = new ActionFormData().title(pet ? appearance.name : "Chibi Companions").body([
       ...(pet ? [appearance.greeting, ""] : []),
-      bag ? `Backpack  ${bag.size - bag.emptySlotsCount} / ${bag.size} slots` : "Your companion is away or hasn’t joined you yet.",
+      bag ? `Backpack  ${9 - workInventory(bag).emptySlotsCount} / 9 slots\nMoving Inventory  ${movingItemCount(bag)} / ${HOUSE_ITEM_END - HOUSE_ITEM_START} slots` : "Your companion is away or hasn’t joined you yet.",
       `Mining, chopping and harvesting  ${workPaused ? "Paused" : "Automatic"}`,
       `Chest sorting  ${sortEnabled ? "On" : "Paused"}`
     ].join("\n"));
@@ -277,6 +405,8 @@ async function showMenu(player) {
       const companionId = pet.id;
       button("Change Appearance", () => changeAppearance(player, companionId));
       button("Take supplies", collectBack);
+      button("Mark house corner", markHouseCorner);
+      button("Pack marked house", packHouse);
     }
     if (workPaused) button("Resume automatic work", resumeWork);
     else button("Pause automatic work", pauseWork);
@@ -322,14 +452,16 @@ const commands = {
   stop: ["Pause automatic mining, chopping and harvesting.", pauseWork],
   mining: ["Resume automatic work (alias for /chibi:work).", resumeWork],
   take: ["Take supplies from your companion.", collectBack],
+  movehouse: ["Mark opposite corners around your house for moving.", markHouseCorner],
+  packhouse: ["Pack supported furniture from the marked house area.", packHouse],
   status: ["Check your companion’s backpack and work status.", player => {
     const pet = locate(player);
     const backpack = inv(pet);
     const task = tasks.get(player.id);
     const work = player.getDynamicProperty(workOffKey) ? "paused" : "automatic";
-    reply(player, `Backpack ${backpack ? `${backpack.size - backpack.emptySlotsCount}/${backpack.size} slots` : "away or unbound"}. Work: ${work}. ${task?.note ?? "Ready."}`);
+    reply(player, `Backpack ${backpack ? `${9 - workInventory(backpack).emptySlotsCount}/9 slots; Moving Inventory ${movingItemCount(backpack)}/${HOUSE_ITEM_END - HOUSE_ITEM_START} slots` : "away or unbound"}. Work: ${work}. ${task?.note ?? "Ready."}`);
   }],
-  help: ["Show companion commands.", player => reply(player, "/chibi:whistle • /chibi:call • /chibi:work • /chibi:stop • /chibi:take • /chibi:sorting • /chibi:mining • /chibi:status")]
+  help: ["Show companion commands.", player => reply(player, "/chibi:whistle • /chibi:call • /chibi:work • /chibi:stop • /chibi:take • /chibi:sorting • /chibi:mining • /chibi:movehouse • /chibi:packhouse • /chibi:status")]
 };
 
 function giveWhistle(player) {
@@ -711,7 +843,7 @@ function act(player, pet, task, inventory, tick) {
 
 function update(player, pet, tick) {
   const task = getTask(player.id);
-  const inventory = inv(pet);
+  const inventory = workInventory(inv(pet));
   if (!inventory) return;
   if (tick % 20 === 0 || !task.position) {
     const previous = task.position;
