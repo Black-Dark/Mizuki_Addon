@@ -56,6 +56,10 @@
             {
               "item": "minecraft:dried_kelp",
               "heal_amount": 4
+            },
+            {
+              "item": "cc:companion_treat",
+              "heal_amount": 6
             }
           ]
         }
