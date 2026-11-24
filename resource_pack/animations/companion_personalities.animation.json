@@ -155,6 +155,75 @@
           ]
         }
       }
+    },
+    "animation.ochub.companion.sora_fly": {
+      "loop": true,
+      "animation_length": 0.48,
+      "bones": {
+        "left_wing": {
+          "rotation": [
+            0,
+            "5 + math.sin(query.anim_time * 750) * 22",
+            "math.cos(query.anim_time * 750) * 9"
+          ]
+        },
+        "right_wing": {
+          "rotation": [
+            0,
+            "-5 - math.sin(query.anim_time * 750) * 22",
+            "math.cos(query.anim_time * 750) * -9"
+          ]
+        },
+        "tail": {
+          "rotation": [
+            "2 + math.cos(query.anim_time * 750) * 5",
+            "math.sin(query.anim_time * 750) * 6",
+            0
+          ]
+        },
+        "body": {
+          "rotation": [
+            8,
+            0,
+            0
+          ]
+        },
+        "head": {
+          "rotation": [
+            -5,
+            0,
+            0
+          ]
+        },
+        "left_arm": {
+          "rotation": [
+            12,
+            0,
+            -8
+          ]
+        },
+        "right_arm": {
+          "rotation": [
+            12,
+            0,
+            8
+          ]
+        },
+        "left_leg": {
+          "rotation": [
+            15,
+            0,
+            -3
+          ]
+        },
+        "right_leg": {
+          "rotation": [
+            23,
+            0,
+            3
+          ]
+        }
+      }
     }
   }
 }

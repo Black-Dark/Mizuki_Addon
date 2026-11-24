@@ -15,6 +15,7 @@ export const appearances = [
   },
   {
     icon: "sora", name: "Sora Aizawa-Yamada", voice: "Sora", trait: "Curious and mischievous",
+    canFly: true,
     greeting: "Tell me we’re going somewhere weird today.",
     recalled: "Found you! What did I miss?",
     handedOver: "Loot delivery! I only inspected the shiny ones.",

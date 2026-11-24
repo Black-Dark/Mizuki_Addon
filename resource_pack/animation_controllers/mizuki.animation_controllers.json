@@ -37,6 +37,9 @@
           "blend_transition": 0.12,
           "transitions": [
             {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
+            {
               "carry": "query.property('cc:pose') == 'carry'"
             },
             {
@@ -72,6 +75,9 @@
           "blend_transition": 0.1,
           "transitions": [
             {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
+            {
               "default": "query.property('cc:pose') == 'idle'"
             },
             {
@@ -103,6 +109,9 @@
           ],
           "blend_transition": 0.09,
           "transitions": [
+            {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
             {
               "default": "query.property('cc:pose') == 'idle'"
             },
@@ -136,6 +145,9 @@
           "blend_transition": 0.09,
           "transitions": [
             {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
+            {
               "default": "query.property('cc:pose') == 'idle'"
             },
             {
@@ -167,6 +179,9 @@
           ],
           "blend_transition": 0.09,
           "transitions": [
+            {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
             {
               "default": "query.property('cc:pose') == 'idle'"
             },
@@ -200,6 +215,9 @@
           "blend_transition": 0.09,
           "transitions": [
             {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
+            {
               "default": "query.property('cc:pose') == 'idle'"
             },
             {
@@ -231,6 +249,9 @@
           ],
           "blend_transition": 0.09,
           "transitions": [
+            {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
             {
               "default": "query.property('cc:pose') == 'idle'"
             },
@@ -264,6 +285,9 @@
           "blend_transition": 0.09,
           "transitions": [
             {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
+            {
               "default": "query.property('cc:pose') == 'idle'"
             },
             {
@@ -296,6 +320,9 @@
           "blend_transition": 0.1,
           "transitions": [
             {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
+            {
               "default": "query.property('cc:pose') == 'idle'"
             },
             {
@@ -318,6 +345,17 @@
             },
             {
               "happy": "query.property('cc:pose') == 'happy'"
+            }
+          ]
+        },
+        "fly": {
+          "animations": [
+            "fly"
+          ],
+          "blend_transition": 0.08,
+          "transitions": [
+            {
+              "default": "query.property('cc:pose') != 'fly'"
             }
           ]
         }
