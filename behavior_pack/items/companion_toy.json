@@ -1,0 +1,14 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "cc:companion_toy",
+      "menu_category": { "category": "items" }
+    },
+    "components": {
+      "minecraft:display_name": { "value": "item.cc:companion_toy.name" },
+      "minecraft:icon": "cc_companion_toy",
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

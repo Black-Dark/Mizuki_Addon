@@ -34,6 +34,26 @@ export function planInsert(slots, items) {
   return Array.from(changed, slot => ({ slot, before: slots[slot], after: next[slot] }));
 }
 
+// Plan a consumable payment without mutating the player inventory. Return
+// undefined if the requested moving supplies are not available.
+export function planRemove(slots, typeId, amount) {
+  if (!Number.isInteger(amount) || amount < 0) return undefined;
+  const next = slots.slice();
+  let remaining = amount;
+  const changed = [];
+  for (let slot = 0; slot < next.length && remaining; slot++) {
+    const stack = next[slot];
+    if (!stack || stack.typeId !== typeId) continue;
+    const count = Math.min(remaining, stack.amount);
+    const after = count === stack.amount ? undefined : stack.clone();
+    if (after) after.amount -= count;
+    changed.push({ slot, before: stack, after });
+    next[slot] = after;
+    remaining -= count;
+  }
+  return remaining ? undefined : changed;
+}
+
 export function restore(container, changes) {
   for (const { slot, before } of changes) container.setItem(slot, before);
 }

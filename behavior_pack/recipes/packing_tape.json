@@ -1,0 +1,13 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:recipe_shapeless": {
+    "description": { "identifier": "cc:packing_tape" },
+    "tags": ["crafting_table"],
+    "ingredients": [
+      { "item": "minecraft:slime_ball" },
+      { "item": "minecraft:paper" }
+    ],
+    "unlock": [{ "item": "minecraft:slime_ball" }],
+    "result": { "item": "cc:packing_tape", "count": 2 }
+  }
+}

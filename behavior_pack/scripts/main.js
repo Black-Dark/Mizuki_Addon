@@ -1,7 +1,7 @@
 import { ActionFormData, FormCancelationReason } from "@minecraft/server-ui";
 import { BlockVolume, CommandPermissionLevel, CustomCommandStatus, GameMode, ItemStack, Player, PlayerPermissionLevel, system, world } from "@minecraft/server";
 import { appearanceKey, appearanceOf, appearances } from "./appearances.js";
-import { chestRank, commit, depositSlot, planInsert, restore, snapshot } from "./inventory.js";
+import { chestRank, commit, depositSlot, planInsert, planRemove, restore, snapshot } from "./inventory.js";
 import { canClimb, cell, center, clearSight, distance2, getBlock, key, ledgeRoute, offset, point, routeTo, routeTree, safeArrival, standable } from "./terrain.js";
 import { eligible, forgetPlacement, harvest, heldTool, makeTrigger, reachableCandidates, trackPlacement, withinWorkRange } from "./resources.js";
 
@@ -14,6 +14,24 @@ const tasks = new Map();
 const claims = new Map();
 const recalls = new Set();
 const lastWarnings = new Map();
+const HOUSE_ITEM_START = 9;
+const HOUSE_ITEM_END = 36;
+const HOUSE_MAX_VOLUME = 4096;
+const HOUSE_BLOCKS = new Set((
+  "minecraft:crafting_table minecraft:enchanting_table minecraft:loom minecraft:stonecutter " +
+  "minecraft:smithing_table minecraft:cartography_table minecraft:fletching_table minecraft:grindstone " +
+  "minecraft:anvil minecraft:chipped_anvil minecraft:damaged_anvil minecraft:jukebox minecraft:note_block " +
+  "minecraft:bell minecraft:campfire minecraft:soul_campfire minecraft:furnace minecraft:blast_furnace " +
+  "minecraft:smoker minecraft:brewing_stand minecraft:chest minecraft:barrel"
+).split(" "));
+const CRAFTING_RECIPES = [
+  { name: "Oak Planks", output: "minecraft:oak_planks", count: 4, ingredients: [["minecraft:oak_log", 1]] },
+  { name: "Sticks", output: "minecraft:stick", count: 4, ingredients: [["minecraft:oak_planks", 2]] },
+  { name: "Moving Box", output: "cc:moving_box", count: 1, ingredients: [["minecraft:paper", 6], ["minecraft:oak_planks", 2]] },
+  { name: "Packing Tape", output: "cc:packing_tape", count: 2, ingredients: [["minecraft:slime_ball", 1], ["minecraft:paper", 1]] },
+  { name: "Companion Treats", output: "cc:companion_treat", count: 3, ingredients: [["minecraft:dried_kelp", 1], ["minecraft:wheat", 1], ["minecraft:sweet_berries", 1]] },
+  { name: "Companion Toy", output: "cc:companion_toy", count: 1, ingredients: [["minecraft:string", 4], ["minecraft:white_wool", 1]] }
+];
 
 const stateKey = "cc:pose";
 const ownerKey = "cc:owner";
@@ -21,6 +39,35 @@ const packKey = "cc:entity";
 const sortOffKey = "cc:sort_off";
 const workOffKey = "cc:work_off";
 const inv = entity => entity?.getComponent("minecraft:inventory")?.container;
+const houseKey = player => `cc:move-house:${player.id}`;
+function workInventory(container) {
+  if (!container) return;
+  const size = Math.min(HOUSE_ITEM_START, container.size);
+  return {
+    size,
+    getItem: slot => slot < size ? container.getItem(slot) : undefined,
+    setItem: (slot, item) => { if (slot < size) container.setItem(slot, item); },
+    get emptySlotsCount() {
+      let count = 0;
+      for (let slot = 0; slot < size; slot++) if (!container.getItem(slot)) count++;
+      return count;
+    }
+  };
+}
+function movingItemCount(container) {
+  if (!container) return 0;
+  let count = 0;
+  for (let slot = HOUSE_ITEM_START; slot < Math.min(HOUSE_ITEM_END, container.size); slot++) {
+    if (container.getItem(slot)) count++;
+  }
+  return count;
+}
+function hasContents(block) {
+  const container = block.getComponent("minecraft:inventory")?.container;
+  if (!container) return false;
+  for (let slot = 0; slot < container.size; slot++) if (container.getItem(slot)) return true;
+  return false;
+}
 const tame = entity => entity.getComponent("minecraft:tameable");
 const reply = (player, message) => player.sendMessage(`§b[Chibi Companions]§r ${message}`);
 const speak = (player, profile, line) => player.sendMessage(`§b[${profile.voice}]§r ${line}`);
@@ -223,6 +270,266 @@ function collectBack(player, pet = locate(player)) {
   else reply(player, "Make room in your inventory.");
 }
 
+function markHouseCorner(player) {
+  if (!fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
+  const position = cell(player.location);
+  const raw = player.getDynamicProperty(houseKey(player));
+  if (typeof raw !== "string") {
+    player.setDynamicProperty(houseKey(player), JSON.stringify({ dimension: player.dimension.id, first: position }));
+    return reply(player, "First house corner marked. Stand at the opposite upper corner and run /chibi:movehouse again.");
+  }
+  let selection;
+  try { selection = JSON.parse(raw); } catch { selection = undefined; }
+  if (!selection?.first || selection.dimension !== player.dimension.id) {
+    player.setDynamicProperty(houseKey(player), undefined);
+    return reply(player, "House selection reset. Mark the first corner again in the same dimension.");
+  }
+  const first = selection.first;
+  const volume = (Math.abs(first.x - position.x) + 1) * (Math.abs(first.y - position.y) + 1) * (Math.abs(first.z - position.z) + 1);
+  if (volume > HOUSE_MAX_VOLUME) return reply(player, "That house selection is too large. Keep it within 4,096 blocks and mark the second corner again.");
+  player.setDynamicProperty(houseKey(player), JSON.stringify({
+    dimension: player.dimension.id,
+    min: { x: Math.min(first.x, position.x), y: Math.min(first.y, position.y), z: Math.min(first.z, position.z) },
+    max: { x: Math.max(first.x, position.x), y: Math.max(first.y, position.y), z: Math.max(first.z, position.z) }
+  }));
+  reply(player, "House area marked. Run /chibi:packhouse to have your companion pack supported furniture and appliances.");
+}
+
+function packHouse(player) {
+  if (!fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
+  const pet = locate(player);
+  if (!pet || pet.dimension.id !== player.dimension.id || distance2(pet.location, player.location) > 25) {
+    return reply(player, "Bring your companion within five blocks before packing the house.");
+  }
+  const raw = player.getDynamicProperty(houseKey(player));
+  if (typeof raw !== "string") return reply(player, "Mark two opposite house corners first with /chibi:movehouse.");
+  let area;
+  try { area = JSON.parse(raw); } catch { area = undefined; }
+  if (!area?.min || !area?.max || area.dimension !== player.dimension.id) return reply(player, "Mark the house area again in this dimension.");
+  const dimension = player.dimension;
+  const blocks = [];
+  const items = [];
+  try {
+    for (let x = area.min.x; x <= area.max.x; x++) for (let y = area.min.y; y <= area.max.y; y++) for (let z = area.min.z; z <= area.max.z; z++) {
+      const block = dimension.getBlock({ x, y, z });
+      if (!block || !HOUSE_BLOCKS.has(block.typeId) || hasContents(block)) continue;
+      const stack = block.getItemStack(1, true);
+      if (!stack) continue;
+      blocks.push({ location: { x, y, z }, permutation: block.permutation });
+      items.push(stack);
+    }
+  } catch (error) {
+    console.warn(`[Chibi Companions] House scan: ${error}`);
+    return reply(player, "I couldn’t safely scan every block in that area. Keep the whole house loaded and try again.");
+  }
+  if (!blocks.length) return reply(player, "I found no supported, empty furniture or appliance blocks in the marked area.");
+  const playerBag = inv(player);
+  if (!playerBag) return reply(player, "Your inventory is unavailable right now.");
+  const crateCount = Math.ceil(blocks.length / 9);
+  const supplies = snapshot(playerBag);
+  const cratePlan = planRemove(supplies, "cc:moving_box", crateCount);
+  if (!cratePlan) return reply(player, `Bring ${crateCount} Moving Box${crateCount === 1 ? "" : "es"} to pack these items (one box per nine blocks).`);
+  for (const change of cratePlan) supplies[change.slot] = change.after;
+  const tapePlan = planRemove(supplies, "cc:packing_tape", crateCount);
+  if (!tapePlan) return reply(player, `Bring ${crateCount} rolls of Packing Tape (one per Moving Box).`);
+  const supplyPlan = [...cratePlan, ...tapePlan];
+  const bag = inv(pet);
+  if (!bag || bag.size < HOUSE_ITEM_END) return reply(player, "This companion’s moving inventory is unavailable. Call them again and retry.");
+  const slots = Array.from({ length: HOUSE_ITEM_END - HOUSE_ITEM_START }, (_, index) => bag.getItem(HOUSE_ITEM_START + index));
+  const plan = planInsert(slots, items);
+  if (!plan) return reply(player, "The moving inventory is full. Take supplies or pack a smaller area first.");
+  const movingBag = {
+    size: HOUSE_ITEM_END - HOUSE_ITEM_START,
+    getItem: slot => bag.getItem(HOUSE_ITEM_START + slot),
+    setItem: (slot, item) => bag.setItem(HOUSE_ITEM_START + slot, item)
+  };
+
+  const removed = [];
+  let packed = false;
+  try {
+    for (const entry of blocks) {
+      const block = dimension.getBlock(entry.location);
+      if (!block || !HOUSE_BLOCKS.has(block.typeId) || hasContents(block)) throw new Error("A selected block changed during packing.");
+      block.setType("minecraft:air");
+      removed.push(entry);
+    }
+    commit(movingBag, plan);
+    packed = true;
+    commit(playerBag, supplyPlan);
+  } catch (error) {
+    try { if (packed) restore(movingBag, plan); } catch (restoreError) { console.warn(`[Chibi Companions] Moving inventory rollback: ${restoreError}`); }
+    for (const entry of removed.reverse()) {
+      try { dimension.getBlock(entry.location)?.setPermutation(entry.permutation); }
+      catch (restoreError) { console.warn(`[Chibi Companions] House rollback: ${restoreError}`); }
+    }
+    console.warn(`[Chibi Companions] House pack rolled back: ${error}`);
+    return reply(player, "Packing stopped, and I restored the selected blocks. Please try again.");
+  }
+  player.setDynamicProperty(houseKey(player), undefined);
+  reply(player, `Your companion packed ${blocks.length} household items into the Moving Inventory, using ${crateCount} Moving Box${crateCount === 1 ? "" : "es"} and ${crateCount} roll${crateCount === 1 ? "" : "s"} of Packing Tape.`);
+}
+
+function planCosts(slots, ingredients) {
+  const next = slots.slice();
+  const changes = [];
+  for (const [typeId, amount] of ingredients) {
+    const plan = planRemove(next, typeId, amount);
+    if (!plan) return undefined;
+    for (const change of plan) next[change.slot] = change.after;
+    changes.push(...plan);
+  }
+  return { next, changes };
+}
+
+function nearbyCraftingTable(pet) {
+  return nearby(pet.dimension, pet.location, 4, 2, ["minecraft:crafting_table"]).length > 0;
+}
+
+function craftAtTable(player, recipe) {
+  if (!fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
+  const pet = locate(player);
+  if (!pet || pet.dimension.id !== player.dimension.id || distance2(pet.location, player.location) > 25) {
+    return reply(player, "Bring your companion within five blocks before asking them to craft.");
+  }
+  if (!nearbyCraftingTable(pet)) return reply(player, "Place a crafting table within four blocks of your companion.");
+  const bag = inv(player);
+  if (!bag) return reply(player, "Your inventory is unavailable right now.");
+  const costs = planCosts(snapshot(bag), recipe.ingredients);
+  if (!costs) return reply(player, `You need the listed ingredients for ${recipe.name}.`);
+  const result = new ItemStack(recipe.output, recipe.count);
+  const outputPlan = planInsert(costs.next, [result]);
+  if (!outputPlan) return reply(player, "Make room in your inventory for the crafted item first.");
+  try {
+    commit(bag, costs.changes);
+    commit(bag, outputPlan);
+  } catch (error) {
+    try { restore(bag, costs.changes); } catch (restoreError) { console.warn(`[Chibi Companions] Craft rollback: ${restoreError}`); }
+    console.warn(`[Chibi Companions] Crafting ${recipe.name}: ${error}`);
+    return reply(player, "The craft could not finish, so I restored your ingredients.");
+  }
+  setPose(pet, "gather");
+  pet.dimension.playSound("random.pop", pet.location, { volume: 0.5, pitch: 1.15 });
+  reply(player, `${appearanceOf(pet).name} crafted ${recipe.count} ${recipe.name}.`);
+}
+
+async function openCraftMenu(player) {
+  const pet = locate(player);
+  if (!pet || pet.dimension.id !== player.dimension.id || distance2(pet.location, player.location) > 25) {
+    return reply(player, "Bring your companion within five blocks to open their crafting menu.");
+  }
+  if (!nearbyCraftingTable(pet)) return reply(player, "Place a crafting table within four blocks of your companion.");
+  const form = new ActionFormData().title("Companion Crafting").body("Choose a supported recipe. Your companion will use the nearby crafting table and your inventory.");
+  for (const recipe of CRAFTING_RECIPES) form.button(`${recipe.count} ${recipe.name}`);
+  const result = await form.show(player);
+  if (!player.isValid || result.canceled || result.selection === undefined) return;
+  const selected = CRAFTING_RECIPES[result.selection];
+  if (selected) craftAtTable(player, selected);
+}
+
+function cabinBlueprint(base) {
+  const plan = [];
+  const add = (type, x, y, z) => plan.push({ type, location: { x: base.x + x, y: base.y + y, z: base.z + z } });
+  for (let x = 1; x <= 5; x++) for (let z = 1; z <= 5; z++) add("minecraft:oak_planks", x, 0, z);
+  for (let y = 1; y <= 3; y++) for (let x = 1; x <= 5; x++) for (let z = 1; z <= 5; z++) {
+    if (x !== 1 && x !== 5 && z !== 1 && z !== 5) continue;
+    const doorway = z === 1 && x === 3 && y <= 2;
+    const window = y === 2 && ((z === 1 && (x === 2 || x === 4)) || (z === 5 && x === 3) || (x === 1 && z === 3));
+    if (doorway) continue;
+    add(window ? "minecraft:glass_pane" : "minecraft:oak_planks", x, y, z);
+  }
+  for (let x = 1; x <= 5; x++) for (let z = 1; z <= 5; z++) add("minecraft:oak_planks", x, 4, z);
+  return { plan, ingredients: [["minecraft:oak_planks", 92], ["minecraft:glass_pane", 4]], height: 5, name: "Oak Starter Cabin" };
+}
+
+function watchPostBlueprint(base) {
+  const plan = [];
+  const add = (type, x, y, z) => plan.push({ type, location: { x: base.x + x, y: base.y + y, z: base.z + z } });
+  for (let x = 1; x <= 3; x++) for (let z = 1; z <= 3; z++) add("minecraft:cobblestone", x, 0, z);
+  for (let y = 1; y <= 2; y++) for (let x = 1; x <= 3; x++) for (let z = 1; z <= 3; z++) {
+    if (x !== 1 && x !== 3 && z !== 1 && z !== 3) continue;
+    if (z === 1 && x === 2) continue;
+    add("minecraft:cobblestone", x, y, z);
+  }
+  for (let x = 1; x <= 3; x++) for (let z = 1; z <= 3; z++) add("minecraft:cobblestone", x, 3, z);
+  return { plan, ingredients: [["minecraft:cobblestone", 32]], height: 4, name: "Stone Watch Post" };
+}
+
+function buildStructure(player, blueprintFactory) {
+  if (!fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
+  const pet = locate(player);
+  if (!pet || pet.dimension.id !== player.dimension.id || distance2(pet.location, player.location) > 25) {
+    return reply(player, "Bring your companion within five blocks before asking them to build.");
+  }
+  const standing = cell(player.location);
+  const base = { x: standing.x + 1, y: standing.y, z: standing.z + 1 };
+  const blueprint = blueprintFactory(base);
+  const bag = inv(player);
+  if (!bag) return reply(player, "Your inventory is unavailable right now.");
+  const costs = planCosts(snapshot(bag), blueprint.ingredients);
+  if (!costs) return reply(player, `Gather the materials for the ${blueprint.name} first.`);
+  const dimension = player.dimension;
+  const oldBlocks = [];
+  try {
+    const middle = { x: base.x + 3.5, y: base.y + blueprint.height / 2, z: base.z + 3.5 };
+    const occupied = dimension.getEntities({ location: middle, maxDistance: 5 }).some(entity =>
+      entity.id !== pet.id && entity.typeId !== "minecraft:item"
+      && entity.location.x >= base.x + 1 && entity.location.x < base.x + 6
+      && entity.location.z >= base.z + 1 && entity.location.z < base.z + 6
+      && entity.location.y >= base.y && entity.location.y < base.y + blueprint.height
+    );
+    if (occupied) return reply(player, "Move everyone and nearby mobs clear of the build site first.");
+    for (const entry of blueprint.plan) {
+      const block = dimension.getBlock(entry.location);
+      if (!block?.isAir) return reply(player, "The build site is blocked. Move to a clear, level area and try again.");
+      if (entry.location.y === base.y) {
+        const ground = dimension.getBlock({ x: entry.location.x, y: base.y - 1, z: entry.location.z });
+        if (!ground || ground.isAir || ["minecraft:water", "minecraft:flowing_water", "minecraft:lava", "minecraft:flowing_lava"].includes(ground.typeId)) {
+          return reply(player, "Choose a level site with solid ground under the whole build.");
+        }
+      }
+    }
+    for (const entry of blueprint.plan) {
+      const block = dimension.getBlock(entry.location);
+      oldBlocks.push({ location: entry.location, permutation: block.permutation });
+      block.setType(entry.type);
+    }
+    commit(bag, costs.changes);
+  } catch (error) {
+    try { restore(bag, costs.changes); } catch (restoreError) { console.warn(`[Chibi Companions] Build inventory rollback: ${restoreError}`); }
+    for (const old of oldBlocks.reverse()) {
+      try { dimension.getBlock(old.location)?.setPermutation(old.permutation); }
+      catch (restoreError) { console.warn(`[Chibi Companions] Build rollback: ${restoreError}`); }
+    }
+    console.warn(`[Chibi Companions] ${blueprint.name}: ${error}`);
+    return reply(player, "The build stopped. I restored the site and materials; try a clear, level area.");
+  }
+  setPose(pet, "happy");
+  const task = getTask(player.id);
+  task.happyUntil = now() + 40;
+  reply(player, `${appearanceOf(pet).name} finished the ${blueprint.name}.`);
+}
+
+async function openBuildMenu(player) {
+  const form = new ActionFormData().title("Companion Builds").body("Stand just outside a clear, level building site. Your companion uses materials from your inventory.")
+    .button("Oak Starter Cabin")
+    .button("Stone Watch Post");
+  const result = await form.show(player);
+  if (!player.isValid || result.canceled || result.selection === undefined) return;
+  if (result.selection === 0) buildStructure(player, cabinBlueprint);
+  if (result.selection === 1) buildStructure(player, watchPostBlueprint);
+}
+
+function consumeHeldItem(player, typeId) {
+  const equipment = player.getComponent("minecraft:equippable");
+  const held = equipment?.getEquipment(EquipmentSlot.Mainhand);
+  if (held?.typeId !== typeId) return false;
+  if (held.amount > 1) {
+    held.amount--;
+    return equipment.setEquipment(EquipmentSlot.Mainhand, held);
+  }
+  return equipment.setEquipment(EquipmentSlot.Mainhand, undefined);
+}
+
 async function changeAppearance(player, companionId) {
   await system.waitTicks(1);
   if (!player.isValid || !fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
@@ -263,7 +570,7 @@ async function showMenu(player) {
     const appearance = appearanceOf(pet);
     const form = new ActionFormData().title(pet ? appearance.name : "Chibi Companions").body([
       ...(pet ? [appearance.greeting, ""] : []),
-      bag ? `Backpack  ${bag.size - bag.emptySlotsCount} / ${bag.size} slots` : "Your companion is away or hasn’t joined you yet.",
+      bag ? `Backpack  ${9 - workInventory(bag).emptySlotsCount} / 9 slots\nMoving Inventory  ${movingItemCount(bag)} / ${HOUSE_ITEM_END - HOUSE_ITEM_START} slots` : "Your companion is away or hasn’t joined you yet.",
       `Mining, chopping and harvesting  ${workPaused ? "Paused" : "Automatic"}`,
       `Chest sorting  ${sortEnabled ? "On" : "Paused"}`
     ].join("\n"));
@@ -277,6 +584,10 @@ async function showMenu(player) {
       const companionId = pet.id;
       button("Change Appearance", () => changeAppearance(player, companionId));
       button("Take supplies", collectBack);
+      button("Mark house corner", markHouseCorner);
+      button("Pack marked house", packHouse);
+      button("Craft at crafting table", openCraftMenu);
+      button("Build a structure", openBuildMenu);
     }
     if (workPaused) button("Resume automatic work", resumeWork);
     else button("Pause automatic work", pauseWork);
@@ -322,14 +633,16 @@ const commands = {
   stop: ["Pause automatic mining, chopping and harvesting.", pauseWork],
   mining: ["Resume automatic work (alias for /chibi:work).", resumeWork],
   take: ["Take supplies from your companion.", collectBack],
+  movehouse: ["Mark opposite corners around your house for moving.", markHouseCorner],
+  packhouse: ["Pack supported furniture from the marked house area.", packHouse],
   status: ["Check your companion’s backpack and work status.", player => {
     const pet = locate(player);
     const backpack = inv(pet);
     const task = tasks.get(player.id);
     const work = player.getDynamicProperty(workOffKey) ? "paused" : "automatic";
-    reply(player, `Backpack ${backpack ? `${backpack.size - backpack.emptySlotsCount}/${backpack.size} slots` : "away or unbound"}. Work: ${work}. ${task?.note ?? "Ready."}`);
+    reply(player, `Backpack ${backpack ? `${9 - workInventory(backpack).emptySlotsCount}/9 slots; Moving Inventory ${movingItemCount(backpack)}/${HOUSE_ITEM_END - HOUSE_ITEM_START} slots` : "away or unbound"}. Work: ${work}. ${task?.note ?? "Ready."}`);
   }],
-  help: ["Show companion commands.", player => reply(player, "/chibi:whistle • /chibi:call • /chibi:work • /chibi:stop • /chibi:take • /chibi:sorting • /chibi:mining • /chibi:status")]
+  help: ["Show companion commands.", player => reply(player, "/chibi:whistle • /chibi:call • /chibi:work • /chibi:stop • /chibi:take • /chibi:sorting • /chibi:mining • /chibi:movehouse • /chibi:packhouse • /chibi:status")]
 };
 
 function giveWhistle(player) {
@@ -412,10 +725,20 @@ world.beforeEvents.playerInteractWithEntity.subscribe(event => {
       system.run(() => guarded("take", () => {
         if (player.isValid && target.isValid && locate(player)?.id === target.id) collectBack(player, target);
       }));
+    } else if (owner === player.id && itemStack?.typeId === "cc:companion_toy") {
+      event.cancel = true;
+      system.run(() => guarded("companion toy", () => {
+        if (!player.isValid || !target.isValid || locate(player)?.id !== target.id) return;
+        const task = getTask(player.id);
+        task.happyUntil = now() + 60;
+        setPose(target, "happy");
+        target.dimension.playSound("random.pop", target.location, { volume: 0.5, pitch: 1.45 });
+        reply(player, `${appearanceOf(target).name} is delighted with the toy.`);
+      }));
     } else if (owner === player.id && (!itemStack || itemStack.typeId === "cc:snowdrop_whistle")) {
       event.cancel = true;
       if (locate(player)?.id === target.id) requestMenu(player);
-    } else if (itemStack?.typeId === "minecraft:dried_kelp" && !owner) {
+    } else if (["minecraft:dried_kelp", "cc:companion_treat"].includes(itemStack?.typeId) && !owner) {
       event.cancel = true;
       system.run(() => guarded("befriend", () => {
         if (!player.isValid || !fullMember(player) || player.getGameMode() === GameMode.Spectator || !target.isValid || tame(target)?.isTamed) return;
@@ -424,6 +747,7 @@ world.beforeEvents.playerInteractWithEntity.subscribe(event => {
         }
         if (tame(target)?.tame(player)) {
           register(player, target);
+          consumeHeldItem(player, itemStack.typeId);
           reply(player, "Little Snowdrop is your companion now.");
         }
       }));
@@ -711,7 +1035,7 @@ function act(player, pet, task, inventory, tick) {
 
 function update(player, pet, tick) {
   const task = getTask(player.id);
-  const inventory = inv(pet);
+  const inventory = workInventory(inv(pet));
   if (!inventory) return;
   if (tick % 20 === 0 || !task.position) {
     const previous = task.position;
