@@ -26,6 +26,12 @@ The current pack supports crafting/enchanting tables, workstations, anvils, juke
 
 The moving boxes and tape are consumed only after the pack operation succeeds. The packed blocks go into the companion's Moving Inventory; `/chibi:take` retrieves them at the new location.
 
+## Companion workshop
+
+Use **Craft at crafting table** in the companion menu while a crafting table is within four blocks of the companion. The companion can craft oak planks, sticks, Moving Boxes, Packing Tape, Companion Treats and a reusable Companion Toy from ingredients in the player's inventory. Use the Companion Toy on your owned companion for a happy reaction. Treats can be used to befriend a wild companion or heal an owned one.
+
+Use **Build a structure** to choose an Oak Starter Cabin or Stone Watch Post. Stand just outside a clear, level site; the companion checks that the footprint is empty and that the ground is solid, then uses materials from the player's inventory. The cabin needs 92 oak planks and 4 glass panes; the watch post needs 32 cobblestone.
+
 ## Work together
 
 This is the public `Black-Dark/Mizuki_Addon` repository. Penney and N7 Knight (`nobleknights015-maker`) can both push branches.
