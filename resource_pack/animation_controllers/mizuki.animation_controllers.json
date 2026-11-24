@@ -14,6 +14,24 @@
             },
             {
               "look": "1.0 - math.clamp(query.modified_move_speed * 8.0, 0.0, 1.0)"
+            },
+            {
+              "idle_mizuki": "query.property('cc:appearance') == 0 && query.property('cc:pose') == 'idle' ? 1 - math.clamp(query.modified_move_speed * 8.0, 0.0, 1.0) : 0"
+            },
+            {
+              "idle_sora": "query.property('cc:appearance') == 1 && query.property('cc:pose') == 'idle' ? 1 - math.clamp(query.modified_move_speed * 8.0, 0.0, 1.0) : 0"
+            },
+            {
+              "idle_yukishiro": "query.property('cc:appearance') == 2 && query.property('cc:pose') == 'idle' ? 1 - math.clamp(query.modified_move_speed * 8.0, 0.0, 1.0) : 0"
+            },
+            {
+              "idle_shion": "query.property('cc:appearance') == 3 && query.property('cc:pose') == 'idle' ? 1 - math.clamp(query.modified_move_speed * 8.0, 0.0, 1.0) : 0"
+            },
+            {
+              "idle_lucien": "query.property('cc:appearance') == 4 && query.property('cc:pose') == 'idle' ? 1 - math.clamp(query.modified_move_speed * 8.0, 0.0, 1.0) : 0"
+            },
+            {
+              "idle_naoki": "query.property('cc:appearance') == 5 && query.property('cc:pose') == 'idle' ? 1 - math.clamp(query.modified_move_speed * 8.0, 0.0, 1.0) : 0"
             }
           ],
           "blend_transition": 0.12,

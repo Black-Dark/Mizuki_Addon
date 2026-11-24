@@ -7,10 +7,20 @@
         "default": "entity_alphatest"
       },
       "textures": {
-        "default": "textures/entity/mizuki"
+        "default": "textures/entity/mizuki",
+        "sora": "textures/entity/sora",
+        "yukishiro": "textures/entity/yukishiro",
+        "shion": "textures/entity/shion",
+        "lucien": "textures/entity/lucien",
+        "naoki": "textures/entity/naoki"
       },
       "geometry": {
-        "default": "geometry.ochub.mizuki"
+        "default": "geometry.ochub.mizuki",
+        "sora": "geometry.ochub.sora",
+        "yukishiro": "geometry.ochub.yukishiro",
+        "shion": "geometry.ochub.shion",
+        "lucien": "geometry.ochub.lucien",
+        "naoki": "geometry.ochub.naoki"
       },
       "animations": {
         "walk": "animation.ochub.mizuki.walk",
@@ -24,7 +34,13 @@
         "deposit": "animation.ochub.mizuki.deposit",
         "happy": "animation.ochub.mizuki.happy",
         "pose": "controller.animation.ochub.mizuki.pose",
-        "climb": "animation.ochub.mizuki.climb"
+        "climb": "animation.ochub.mizuki.climb",
+        "idle_mizuki": "animation.ochub.companion.idle_mizuki",
+        "idle_sora": "animation.ochub.companion.idle_sora",
+        "idle_yukishiro": "animation.ochub.companion.idle_yukishiro",
+        "idle_shion": "animation.ochub.companion.idle_shion",
+        "idle_lucien": "animation.ochub.companion.idle_lucien",
+        "idle_naoki": "animation.ochub.companion.idle_naoki"
       },
       "scripts": {
         "animate": [

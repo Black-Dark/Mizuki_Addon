@@ -1,0 +1,160 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.ochub.companion.idle_mizuki": {
+      "loop": true,
+      "animation_length": 3.8,
+      "bones": {
+        "head": {
+          "rotation": [
+            "math.sin(query.anim_time * 94.7368) * 1.5",
+            0,
+            "math.sin(query.anim_time * 94.7368) * 2.1"
+          ]
+        },
+        "left_arm": {
+          "rotation": [
+            0,
+            0,
+            "math.sin(query.anim_time * 94.7368) * 1.4"
+          ]
+        }
+      }
+    },
+    "animation.ochub.companion.idle_sora": {
+      "loop": true,
+      "animation_length": 2.4,
+      "bones": {
+        "head": {
+          "rotation": [
+            -1,
+            "math.sin(query.anim_time * 150) * 3",
+            "math.sin(query.anim_time * 150) * 4"
+          ]
+        },
+        "root": {
+          "position": [
+            0,
+            "(1 - math.cos(query.anim_time * 300)) * 0.15",
+            0
+          ]
+        },
+        "left_wing": {
+          "rotation": [
+            0,
+            "math.sin(query.anim_time * 300) * 8",
+            "math.sin(query.anim_time * 300) * 3.5"
+          ]
+        },
+        "right_wing": {
+          "rotation": [
+            0,
+            "math.sin(query.anim_time * 300) * -8",
+            "math.sin(query.anim_time * 300) * -3.5"
+          ]
+        },
+        "tail": {
+          "rotation": [
+            0,
+            "math.sin(query.anim_time * 150) * 5",
+            0
+          ]
+        }
+      }
+    },
+    "animation.ochub.companion.idle_yukishiro": {
+      "loop": true,
+      "animation_length": 4.5,
+      "bones": {
+        "head": {
+          "rotation": [
+            "6 + (1 - math.cos(query.anim_time * 80)) * 2.2",
+            0,
+            -3
+          ]
+        },
+        "left_rhinophore": {
+          "rotation": [
+            0,
+            0,
+            "(1 - math.cos(query.anim_time * 160)) * 1.3"
+          ]
+        },
+        "right_rhinophore": {
+          "rotation": [
+            0,
+            0,
+            "(1 - math.cos(query.anim_time * 160)) * -1.7"
+          ]
+        },
+        "tail": {
+          "rotation": [
+            0,
+            "math.sin(query.anim_time * 80) * 3.5",
+            "math.sin(query.anim_time * 80) * 3"
+          ]
+        }
+      }
+    },
+    "animation.ochub.companion.idle_shion": {
+      "loop": true,
+      "animation_length": 4.8,
+      "bones": {
+        "head": {
+          "rotation": [
+            -2,
+            "math.sin(query.anim_time * 75) * 3.1",
+            "1.5 - math.sin(query.anim_time * 75) * 1.4"
+          ]
+        },
+        "right_arm": {
+          "rotation": [
+            0,
+            0,
+            2
+          ]
+        }
+      }
+    },
+    "animation.ochub.companion.idle_lucien": {
+      "loop": true,
+      "animation_length": 4,
+      "bones": {
+        "head": {
+          "rotation": [
+            "(1 - math.cos(query.anim_time * 90)) * 2.8",
+            0,
+            0
+          ]
+        },
+        "left_arm": {
+          "rotation": [
+            "-3 - (1 - math.cos(query.anim_time * 90)) * 3",
+            -4,
+            -3
+          ]
+        }
+      }
+    },
+    "animation.ochub.companion.idle_naoki": {
+      "loop": true,
+      "animation_length": 5,
+      "bones": {
+        "head": {
+          "rotation": [
+            1,
+            "math.sin(query.anim_time * 72) * 1.8",
+            "-4 + math.cos(query.anim_time * 72) * 0.9"
+          ]
+        },
+        "body": {
+          "rotation": [
+            0,
+            "math.sin(query.anim_time * 72) * 1.4",
+            0
+          ]
+        }
+      }
+    }
+  }
+}

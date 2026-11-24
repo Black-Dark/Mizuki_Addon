@@ -2,14 +2,44 @@
   "format_version": "1.8.0",
   "render_controllers": {
     "controller.render.ochub.mizuki": {
-      "geometry": "Geometry.default",
+      "geometry": "Array.variants[query.property('cc:appearance')]",
       "materials": [
         {
           "*": "Material.default"
         }
       ],
       "textures": [
-        "Texture.default"
+        "Array.skins[query.property('cc:appearance')]"
+      ],
+      "arrays": {
+        "geometries": {
+          "Array.variants": [
+            "Geometry.default",
+            "Geometry.sora",
+            "Geometry.yukishiro",
+            "Geometry.shion",
+            "Geometry.lucien",
+            "Geometry.naoki"
+          ]
+        },
+        "textures": {
+          "Array.skins": [
+            "Texture.default",
+            "Texture.sora",
+            "Texture.yukishiro",
+            "Texture.shion",
+            "Texture.lucien",
+            "Texture.naoki"
+          ]
+        }
+      },
+      "part_visibility": [
+        {
+          "pickaxe": "query.property('cc:pose') == 'mine'"
+        },
+        {
+          "axe": "query.property('cc:pose') == 'chop'"
+        }
       ]
     }
   }
