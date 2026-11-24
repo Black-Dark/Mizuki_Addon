@@ -30,7 +30,7 @@ The moving boxes and tape are consumed only after the pack operation succeeds. T
 
 Use **Craft at crafting table** in the companion menu while a crafting table is within four blocks of the companion. The companion can craft oak planks, sticks, Moving Boxes, Packing Tape, Companion Treats and a reusable Companion Toy from ingredients in the player's inventory. Use the Companion Toy on your owned companion for a happy reaction. Treats can be used to befriend a wild companion or heal an owned one.
 
-Use **Build a structure** to choose an Oak Starter Cabin or Stone Watch Post. Stand just outside a clear, level site; the companion checks that the footprint is empty and that the ground is solid, then uses materials from the player's inventory. The cabin needs 92 oak planks and 4 glass panes; the watch post needs 32 cobblestone.
+Use **Build a house or structure** in the companion menu, or run `/chibi:build`, to choose an Oak Starter Cabin or Stone Watch Post. Stand just outside a clear, level site; the companion checks that the footprint is empty and that the ground is solid, then uses materials from the player's inventory. The cabin needs 92 oak planks and 4 glass panes; the watch post needs 32 cobblestone.
 
 ## Work together
 
