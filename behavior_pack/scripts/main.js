@@ -1,7 +1,7 @@
 import { ActionFormData, FormCancelationReason } from "@minecraft/server-ui";
 import { BlockVolume, CommandPermissionLevel, CustomCommandStatus, GameMode, ItemStack, Player, PlayerPermissionLevel, system, world } from "@minecraft/server";
 import { appearanceKey, appearanceOf, appearances } from "./appearances.js";
-import { chestRank, commit, depositSlot, planInsert, restore, snapshot } from "./inventory.js";
+import { chestRank, commit, depositSlot, planInsert, planRemove, restore, snapshot } from "./inventory.js";
 import { canClimb, cell, center, clearSight, distance2, getBlock, key, ledgeRoute, offset, point, routeTo, routeTree, safeArrival, standable } from "./terrain.js";
 import { eligible, forgetPlacement, harvest, heldTool, makeTrigger, reachableCandidates, trackPlacement, withinWorkRange } from "./resources.js";
 
@@ -315,13 +315,29 @@ function packHouse(player) {
     return reply(player, "I couldn’t safely scan every block in that area. Keep the whole house loaded and try again.");
   }
   if (!blocks.length) return reply(player, "I found no supported, empty furniture or appliance blocks in the marked area.");
+  const playerBag = inv(player);
+  if (!playerBag) return reply(player, "Your inventory is unavailable right now.");
+  const crateCount = Math.ceil(blocks.length / 9);
+  const supplies = snapshot(playerBag);
+  const cratePlan = planRemove(supplies, "cc:moving_box", crateCount);
+  if (!cratePlan) return reply(player, `Bring ${crateCount} Moving Box${crateCount === 1 ? "" : "es"} to pack these items (one box per nine blocks).`);
+  for (const change of cratePlan) supplies[change.slot] = change.after;
+  const tapePlan = planRemove(supplies, "cc:packing_tape", crateCount);
+  if (!tapePlan) return reply(player, `Bring ${crateCount} rolls of Packing Tape (one per Moving Box).`);
+  const supplyPlan = [...cratePlan, ...tapePlan];
   const bag = inv(pet);
   if (!bag || bag.size < HOUSE_ITEM_END) return reply(player, "This companion’s moving inventory is unavailable. Call them again and retry.");
   const slots = Array.from({ length: HOUSE_ITEM_END - HOUSE_ITEM_START }, (_, index) => bag.getItem(HOUSE_ITEM_START + index));
   const plan = planInsert(slots, items);
   if (!plan) return reply(player, "The moving inventory is full. Take supplies or pack a smaller area first.");
+  const movingBag = {
+    size: HOUSE_ITEM_END - HOUSE_ITEM_START,
+    getItem: slot => bag.getItem(HOUSE_ITEM_START + slot),
+    setItem: (slot, item) => bag.setItem(HOUSE_ITEM_START + slot, item)
+  };
 
   const removed = [];
+  let packed = false;
   try {
     for (const entry of blocks) {
       const block = dimension.getBlock(entry.location);
@@ -329,17 +345,11 @@ function packHouse(player) {
       block.setType("minecraft:air");
       removed.push(entry);
     }
-    const written = [];
-    try {
-      for (const change of plan) {
-        bag.setItem(HOUSE_ITEM_START + change.slot, change.after);
-        written.push(change);
-      }
-    } catch (error) {
-      for (const change of written.reverse()) bag.setItem(HOUSE_ITEM_START + change.slot, change.before);
-      throw error;
-    }
+    commit(movingBag, plan);
+    packed = true;
+    commit(playerBag, supplyPlan);
   } catch (error) {
+    try { if (packed) restore(movingBag, plan); } catch (restoreError) { console.warn(`[Chibi Companions] Moving inventory rollback: ${restoreError}`); }
     for (const entry of removed.reverse()) {
       try { dimension.getBlock(entry.location)?.setPermutation(entry.permutation); }
       catch (restoreError) { console.warn(`[Chibi Companions] House rollback: ${restoreError}`); }
@@ -348,7 +358,18 @@ function packHouse(player) {
     return reply(player, "Packing stopped, and I restored the selected blocks. Please try again.");
   }
   player.setDynamicProperty(houseKey(player), undefined);
-  reply(player, `Your companion packed ${blocks.length} household items into the Moving Inventory. The house blocks remain recoverable in their original item form.`);
+  reply(player, `Your companion packed ${blocks.length} household items into the Moving Inventory, using ${crateCount} Moving Box${crateCount === 1 ? "" : "es"} and ${crateCount} roll${crateCount === 1 ? "" : "s"} of Packing Tape.`);
+}
+
+function consumeHeldItem(player, typeId) {
+  const equipment = player.getComponent("minecraft:equippable");
+  const held = equipment?.getEquipment(EquipmentSlot.Mainhand);
+  if (held?.typeId !== typeId) return false;
+  if (held.amount > 1) {
+    held.amount--;
+    return equipment.setEquipment(EquipmentSlot.Mainhand, held);
+  }
+  return equipment.setEquipment(EquipmentSlot.Mainhand, undefined);
 }
 
 async function changeAppearance(player, companionId) {
@@ -544,10 +565,20 @@ world.beforeEvents.playerInteractWithEntity.subscribe(event => {
       system.run(() => guarded("take", () => {
         if (player.isValid && target.isValid && locate(player)?.id === target.id) collectBack(player, target);
       }));
+    } else if (owner === player.id && itemStack?.typeId === "cc:companion_toy") {
+      event.cancel = true;
+      system.run(() => guarded("companion toy", () => {
+        if (!player.isValid || !target.isValid || locate(player)?.id !== target.id) return;
+        const task = getTask(player.id);
+        task.happyUntil = now() + 60;
+        setPose(target, "happy");
+        target.dimension.playSound("random.pop", target.location, { volume: 0.5, pitch: 1.45 });
+        reply(player, `${appearanceOf(target).name} is delighted with the toy.`);
+      }));
     } else if (owner === player.id && (!itemStack || itemStack.typeId === "cc:snowdrop_whistle")) {
       event.cancel = true;
       if (locate(player)?.id === target.id) requestMenu(player);
-    } else if (itemStack?.typeId === "minecraft:dried_kelp" && !owner) {
+    } else if (["minecraft:dried_kelp", "cc:companion_treat"].includes(itemStack?.typeId) && !owner) {
       event.cancel = true;
       system.run(() => guarded("befriend", () => {
         if (!player.isValid || !fullMember(player) || player.getGameMode() === GameMode.Spectator || !target.isValid || tame(target)?.isTamed) return;
@@ -556,6 +587,7 @@ world.beforeEvents.playerInteractWithEntity.subscribe(event => {
         }
         if (tame(target)?.tame(player)) {
           register(player, target);
+          consumeHeldItem(player, itemStack.typeId);
           reply(player, "Little Snowdrop is your companion now.");
         }
       }));
