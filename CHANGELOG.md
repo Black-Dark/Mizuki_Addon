@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.3.0 (proposed)
+
+- Added a dedicated 27-slot Moving Inventory alongside the original 9-slot gathering backpack.
+- Added two-corner house selection and companion packing for supported furniture and appliance blocks, with non-empty containers skipped and rollback on failed writes.
+- Automated checks pass; PowerShell packaging and Samsung/Switch in-game checks remain pending.
+
 ## 3.2.0
 
 - Added a per-companion appearance picker with Mizuki, Sora, Yukishiro, Shion, Lucien, and Naoki.
