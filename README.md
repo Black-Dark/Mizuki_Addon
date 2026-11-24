@@ -12,7 +12,11 @@ The starting point is the supplied Chibi_Companions_Mizuki-3.0.mcaddon. Its two 
 
 ## Work together
 
-Put this folder in a private Git repository and invite N7 Knight with write access. Keep the latest playable source on the main branch. Make each update on its own branch. Open a pull request so the other person can see the changes, run the build and check the result before merging. Keep the pack and module UUIDs stable for upgrades.
+This is the public `Black-Dark/Mizuki_Addon` repository. Penney and N7 Knight (`nobleknights015-maker`) can both push branches.
+
+1. Start each update from the latest `main` and give it its own branch.
+2. Run `./build.ps1`, then open a pull request. Include what changed, the test results, and any Samsung or Switch checks still pending.
+3. Have the other collaborator review it before merging. Keep `main` playable and keep the pack and module UUIDs stable so Minecraft recognises future updates.
 
 ## Build a release
 
