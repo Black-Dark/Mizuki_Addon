@@ -1,6 +1,10 @@
 # Changelog
 
-## 3.4.0 (proposed)
+## 3.4.1 (proposed)
+
+- Promoted the build option near the top of the companion menu and added `/chibi:build` as a direct shortcut.
+
+## 3.4.0
 
 - Added craftable Moving Boxes and Packing Tape, consumed per nine supported household blocks packed.
 - Added craftable Companion Treats for taming/healing and a reusable Companion Toy that triggers a happy reaction.
