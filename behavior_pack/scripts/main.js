@@ -510,6 +510,7 @@ function buildStructure(player, blueprintFactory) {
 }
 
 async function openBuildMenu(player) {
+  if (!locate(player)) return reply(player, "Call your companion first, then choose a build.");
   const form = new ActionFormData().title("Companion Builds").body("Stand just outside a clear, level building site. Your companion uses materials from your inventory.")
     .button("Oak Starter Cabin")
     .button("Stone Watch Post");
@@ -582,12 +583,12 @@ async function showMenu(player) {
     button("Call companion", summonOrRecall);
     if (pet) {
       const companionId = pet.id;
+      button("Build a house or structure", openBuildMenu);
       button("Change Appearance", () => changeAppearance(player, companionId));
       button("Take supplies", collectBack);
       button("Mark house corner", markHouseCorner);
       button("Pack marked house", packHouse);
       button("Craft at crafting table", openCraftMenu);
-      button("Build a structure", openBuildMenu);
     }
     if (workPaused) button("Resume automatic work", resumeWork);
     else button("Pause automatic work", pauseWork);
@@ -635,6 +636,7 @@ const commands = {
   take: ["Take supplies from your companion.", collectBack],
   movehouse: ["Mark opposite corners around your house for moving.", markHouseCorner],
   packhouse: ["Pack supported furniture from the marked house area.", packHouse],
+  build: ["Open the companion house and structure building menu.", openBuildMenu],
   status: ["Check your companion’s backpack and work status.", player => {
     const pet = locate(player);
     const backpack = inv(pet);
@@ -642,7 +644,7 @@ const commands = {
     const work = player.getDynamicProperty(workOffKey) ? "paused" : "automatic";
     reply(player, `Backpack ${backpack ? `${9 - workInventory(backpack).emptySlotsCount}/9 slots; Moving Inventory ${movingItemCount(backpack)}/${HOUSE_ITEM_END - HOUSE_ITEM_START} slots` : "away or unbound"}. Work: ${work}. ${task?.note ?? "Ready."}`);
   }],
-  help: ["Show companion commands.", player => reply(player, "/chibi:whistle • /chibi:call • /chibi:work • /chibi:stop • /chibi:take • /chibi:sorting • /chibi:mining • /chibi:movehouse • /chibi:packhouse • /chibi:status")]
+  help: ["Show companion commands.", player => reply(player, "/chibi:whistle • /chibi:call • /chibi:build • /chibi:work • /chibi:stop • /chibi:take • /chibi:sorting • /chibi:mining • /chibi:movehouse • /chibi:packhouse • /chibi:status")]
 };
 
 function giveWhistle(player) {
