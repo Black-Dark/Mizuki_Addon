@@ -5,6 +5,7 @@
 - Added craftable Moving Boxes and Packing Tape, consumed per nine supported household blocks packed.
 - Added craftable Companion Treats for taming/healing and a reusable Companion Toy that triggers a happy reaction.
 - Added a dedicated 27-slot Moving Inventory alongside the original 9-slot gathering backpack and two-corner house packing.
+- Added companion workshop menus for crafting supported items at a nearby table and building an oak cabin or stone watch post from player-supplied materials.
 - Automated checks pass; PowerShell packaging and Samsung/Switch in-game checks remain pending.
 
 ## 3.3.0
