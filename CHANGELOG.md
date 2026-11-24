@@ -1,4 +1,4 @@
-# Changelog
+## 3.4.1 (proposed)\n\n- Promoted building higher in the companion menu and added `/chibi:build` as a direct shortcut.\n\n# Changelog
 
 ## 3.4.0 (proposed)
 
