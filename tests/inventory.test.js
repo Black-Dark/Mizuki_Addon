@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { chestRank, commit, depositSlot, planInsert } from "../behavior_pack/scripts/inventory.js";
+import { chestRank, commit, depositSlot, planInsert, planRemove } from "../behavior_pack/scripts/inventory.js";
 
 class Stack {
   constructor(typeId, amount = 1, data = "", maxAmount = 64) {
@@ -79,6 +79,14 @@ test("pickup or harvest only plans when all resulting items fit", () => {
   assert.equal(slots[0].amount, 63);
   assert.equal(planInsert(slots, [ore(1), new Stack("apple")]), undefined);
   assert.equal(planInsert(slots, [ore(1)])[0].after.amount, 64);
+});
+
+test("moving supply payment is planned without mutating the source", () => {
+  const slots = [new Stack("cc:moving_box", 2), ore(5), new Stack("cc:moving_box", 3)];
+  const plan = planRemove(slots, "cc:moving_box", 4);
+  assert.equal(slots[0].amount, 2);
+  assert.deepEqual(plan.map(change => [change.slot, change.after?.amount]), [[0, undefined], [2, 1]]);
+  assert.equal(planRemove(slots, "cc:packing_tape", 1), undefined);
 });
 
 test("multi-item write restores prior backpack changes on failure", () => {
