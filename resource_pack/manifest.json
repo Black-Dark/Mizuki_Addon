@@ -1,13 +1,13 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Chibi Companions \u2014 Mizuki Resources",
-    "description": "Six chibi companions with their own personalities. Every companion follows, gathers, and sorts alongside you.",
+    "name": "Chibi Companions — Mizuki Resources",
+    "description": "56 appearances, companion workshop, home guidance and gear recovery.",
     "uuid": "966cba6a-1b13-49b7-a42c-4c50fa4913b8",
     "version": [
       3,
-      4,
-      0
+      6,
+      3
     ],
     "min_engine_version": [
       1,
@@ -21,8 +21,8 @@
       "uuid": "edd03f2e-07a8-4d36-8877-f38ee175f548",
       "version": [
         3,
-        4,
-        0
+        6,
+        3
       ]
     }
   ]

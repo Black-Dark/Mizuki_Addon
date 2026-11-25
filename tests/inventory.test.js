@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { chestRank, commit, depositSlot, planInsert, planRemove } from "../behavior_pack/scripts/inventory.js";
 
+import { recoverStack } from "../behavior_pack/scripts/death-recovery.js";
+
 class Stack {
   constructor(typeId, amount = 1, data = "", maxAmount = 64) {
     Object.assign(this, { typeId, amount, data, maxAmount });
@@ -100,4 +102,22 @@ test("multi-item write restores prior backpack changes on failure", () => {
   assert.throws(() => commit(container, plan), /stopped/);
   assert.equal(container.getItem(0).amount, 63);
   assert.equal(container.getItem(1), undefined);
+});
+test("death recovery preserves gear metadata and leaves a full backpack's drops alone", () => {
+  const gear = new Stack("iron_pickaxe", 1, "damaged and enchanted", 1);
+  const item = { isValid: true, getComponent: () => ({ itemStack: gear }), remove() { this.isValid = false; } };
+  const full = new Container(ore(64));
+  assert.equal(recoverStack(full, item), 0);
+  assert.equal(item.isValid, true);
+  const bag = new Container(undefined);
+  assert.equal(recoverStack(bag, item), 1);
+  assert.deepEqual(bag.getItem(0), gear);
+  assert.equal(recoverStack(bag, item), 0);
+});
+
+test("death recovery rolls back the backpack if the world item cannot be removed", () => {
+  const bag = new Container(ore(60), undefined);
+  const item = { isValid: true, getComponent: () => ({ itemStack: ore(8) }), remove() { throw new Error("removed by another player"); } };
+  assert.throws(() => recoverStack(bag, item), /removed by another player/);
+  assert.deepEqual(bag.slots, [ore(60), undefined]);
 });

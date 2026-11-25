@@ -1,13 +1,13 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Chibi Companions \u2014 Mizuki Behavior",
-    "description": "Six chibi companions with their own personalities. Every companion follows, gathers, and sorts alongside you.",
+    "name": "Chibi Companions — Mizuki Behavior",
+    "description": "56 appearances, companion workshop, home guidance and gear recovery.",
     "uuid": "e9167a09-4b5a-4a0f-a192-0ece859333b3",
     "version": [
       3,
-      4,
-      0
+      6,
+      3
     ],
     "min_engine_version": [
       1,
@@ -21,8 +21,8 @@
       "uuid": "5c506150-fc2d-434b-94b7-87238c76c227",
       "version": [
         3,
-        4,
-        0
+        6,
+        3
       ]
     },
     {
@@ -31,8 +31,8 @@
       "uuid": "fdc265fa-221d-4297-b3ba-da1b12688290",
       "version": [
         3,
-        4,
-        0
+        6,
+        3
       ],
       "entry": "scripts/main.js"
     }
@@ -42,8 +42,8 @@
       "uuid": "966cba6a-1b13-49b7-a42c-4c50fa4913b8",
       "version": [
         3,
-        4,
-        0
+        6,
+        3
       ]
     },
     {

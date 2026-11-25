@@ -7,13 +7,13 @@
         "default": {
           "animations": [
             {
-              "idle": "1.0 - math.clamp(query.modified_move_speed * 6.0, 0.0, 1.0)"
+              "idle": "query.property('cc:appearance') >= 9 ? 0.0 : (1.0 - math.clamp(query.modified_move_speed * 6.0, 0.0, 1.0))"
             },
             {
-              "walk": "math.clamp(query.modified_move_speed * 6.0, 0.0, 1.0)"
+              "walk": "query.property('cc:appearance') >= 9 ? 0.0 : (math.clamp(query.modified_move_speed * 6.0, 0.0, 1.0))"
             },
             {
-              "look": "1.0 - math.clamp(query.modified_move_speed * 8.0, 0.0, 1.0)"
+              "look": "query.property('cc:appearance') >= 9 ? 0.0 : (1.0 - math.clamp(query.modified_move_speed * 8.0, 0.0, 1.0))"
             },
             {
               "idle_mizuki": "query.property('cc:appearance') == 0 && query.property('cc:pose') == 'idle' ? 1 - math.clamp(query.modified_move_speed * 8.0, 0.0, 1.0) : 0"
@@ -32,10 +32,22 @@
             },
             {
               "idle_naoki": "query.property('cc:appearance') == 5 && query.property('cc:pose') == 'idle' ? 1 - math.clamp(query.modified_move_speed * 8.0, 0.0, 1.0) : 0"
+            },
+            {
+              "archive_walk": "query.property('cc:appearance') >= 9 ? (math.clamp((query.modified_move_speed - 0.02) * 5.5, 0.0, 1.0)) : 0.0"
+            },
+            {
+              "archive_look": "query.property('cc:appearance') >= 9 ? (1.0 - math.clamp((query.modified_move_speed - 0.02) * 5.5, 0.0, 1.0)) : 0.0"
             }
           ],
           "blend_transition": 0.12,
           "transitions": [
+            {
+              "defend": "query.property('cc:pose') == 'defend'"
+            },
+            {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
             {
               "carry": "query.property('cc:pose') == 'carry'"
             },
@@ -66,11 +78,20 @@
           "animations": [
             "carry",
             {
-              "walk": "math.clamp(query.modified_move_speed * 4.0, 0.0, 0.65)"
+              "walk": "query.property('cc:appearance') >= 9 ? 0.0 : (math.clamp(query.modified_move_speed * 4.0, 0.0, 0.65))"
+            },
+            {
+              "archive_carry_walk": "query.property('cc:appearance') >= 9 ? (math.clamp((query.modified_move_speed - 0.02) * 5.5, 0.0, 1.0)) : 0.0"
             }
           ],
           "blend_transition": 0.1,
           "transitions": [
+            {
+              "defend": "query.property('cc:pose') == 'defend'"
+            },
+            {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
             {
               "default": "query.property('cc:pose') == 'idle'"
             },
@@ -104,6 +125,12 @@
           "blend_transition": 0.09,
           "transitions": [
             {
+              "defend": "query.property('cc:pose') == 'defend'"
+            },
+            {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
+            {
               "default": "query.property('cc:pose') == 'idle'"
             },
             {
@@ -135,6 +162,12 @@
           ],
           "blend_transition": 0.09,
           "transitions": [
+            {
+              "defend": "query.property('cc:pose') == 'defend'"
+            },
+            {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
             {
               "default": "query.property('cc:pose') == 'idle'"
             },
@@ -168,6 +201,12 @@
           "blend_transition": 0.09,
           "transitions": [
             {
+              "defend": "query.property('cc:pose') == 'defend'"
+            },
+            {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
+            {
               "default": "query.property('cc:pose') == 'idle'"
             },
             {
@@ -195,10 +234,21 @@
         },
         "pickup": {
           "animations": [
-            "pickup"
+            {
+              "pickup": "query.property('cc:appearance') >= 9 ? 0.0 : (1.0)"
+            },
+            {
+              "archive_pickup": "query.property('cc:appearance') >= 9 ? (1.0) : 0.0"
+            }
           ],
           "blend_transition": 0.09,
           "transitions": [
+            {
+              "defend": "query.property('cc:pose') == 'defend'"
+            },
+            {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
             {
               "default": "query.property('cc:pose') == 'idle'"
             },
@@ -232,6 +282,12 @@
           "blend_transition": 0.09,
           "transitions": [
             {
+              "defend": "query.property('cc:pose') == 'defend'"
+            },
+            {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
+            {
               "default": "query.property('cc:pose') == 'idle'"
             },
             {
@@ -259,10 +315,21 @@
         },
         "happy": {
           "animations": [
-            "happy"
+            {
+              "happy": "query.property('cc:appearance') >= 9 ? 0.0 : (1.0)"
+            },
+            {
+              "archive_happy": "query.property('cc:appearance') >= 9 ? (1.0) : 0.0"
+            }
           ],
           "blend_transition": 0.09,
           "transitions": [
+            {
+              "defend": "query.property('cc:pose') == 'defend'"
+            },
+            {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
             {
               "default": "query.property('cc:pose') == 'idle'"
             },
@@ -291,10 +358,21 @@
         },
         "climb": {
           "animations": [
-            "climb"
+            {
+              "climb": "query.property('cc:appearance') >= 9 ? 0.0 : (1.0)"
+            },
+            {
+              "archive_climb": "query.property('cc:appearance') >= 9 ? (1.0) : 0.0"
+            }
           ],
           "blend_transition": 0.1,
           "transitions": [
+            {
+              "defend": "query.property('cc:pose') == 'defend'"
+            },
+            {
+              "fly": "query.property('cc:pose') == 'fly'"
+            },
             {
               "default": "query.property('cc:pose') == 'idle'"
             },
@@ -318,6 +396,31 @@
             },
             {
               "happy": "query.property('cc:pose') == 'happy'"
+            }
+          ]
+        },
+        "fly": {
+          "animations": [
+            "fly"
+          ],
+          "blend_transition": 0.08,
+          "transitions": [
+            {
+              "defend": "query.property('cc:pose') == 'defend'"
+            },
+            {
+              "default": "query.property('cc:pose') != 'fly'"
+            }
+          ]
+        },
+        "defend": {
+          "animations": [
+            "defend"
+          ],
+          "blend_transition": 0.08,
+          "transitions": [
+            {
+              "default": "query.property('cc:pose') != 'defend'"
             }
           ]
         }

@@ -18,7 +18,9 @@
             "pickup",
             "deposit",
             "happy",
-            "climb"
+            "climb",
+            "fly",
+            "defend"
           ],
           "default": "idle",
           "client_sync": true
@@ -27,7 +29,7 @@
           "type": "int",
           "range": [
             0,
-            5
+            58
           ],
           "default": 0,
           "client_sync": true
@@ -124,7 +126,7 @@
         "priority": 0
       },
       "minecraft:tameable": {
-        "probability": 0.0,
+        "probability": 0,
         "tame_items": [],
         "tame_event": {
           "event": "ochub:on_befriend",
@@ -133,7 +135,7 @@
       },
       "minecraft:inventory": {
         "container_type": "inventory",
-        "inventory_size": 36,
+        "inventory_size": 63,
         "restrict_to_owner": true,
         "can_be_siphoned_from": false,
         "private": false
