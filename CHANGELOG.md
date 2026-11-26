@@ -1,10 +1,15 @@
 # Changelog
 
+## 3.7.0
+
+- Craft a placeable Companion Workbench from a crafting table, a chest, and a copper ingot at a regular crafting table.
+- Use the workbench to make Healing Salve, Guard Biscuits, and Camp Tags. It also accepts the existing Companion Treat and Companion Toy recipes.
 ## 3.6.5
 
 - Preserve Stay and restore an appropriate pose when a saved companion loads. Repeated join events leave an active job in place.
 - Isolate world-start recovery failures so another saved companion can still rejoin. Restore following on a successful whistle recall.
 - Prevent a form from a disconnected session from handling input or unlocking a newer companion menu.
+
 
 
 ## 3.6.4

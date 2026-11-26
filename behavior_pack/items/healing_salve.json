@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "cc:healing_salve",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:display_name": {
+        "value": "item.cc:healing_salve.name"
+      },
+      "minecraft:icon": "cc_healing_salve",
+      "minecraft:max_stack_size": 16
+    }
+  }
+}

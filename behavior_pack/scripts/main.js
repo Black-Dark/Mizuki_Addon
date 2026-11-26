@@ -10,7 +10,7 @@ import { canClimb, cell, center, clearSight, distance2, getBlock, key, ledgeRout
 import { eligible, forgetPlacement, harvest, heldTool, makeTrigger, reachableCandidates, trackPlacement, withinWorkRange } from "./resources.js";
 
 const TYPE = "ochub:mizuki_todoroki";
-const PACK_VERSION = "3.6.5";
+const PACK_VERSION = "3.7.0";
 const BACKPACK_CAPACITY = 36;
 const ACTIVITY_TICKS = 320;
 const WORK_BATCH_SIZE = 4;
@@ -616,6 +616,32 @@ function consumeHeldItem(player, typeId) {
   return equipment.setEquipment(EquipmentSlot.Mainhand, undefined);
 }
 
+const workbenchGear = new Set(["cc:healing_salve", "cc:guard_biscuit", "cc:camp_tag"]);
+
+function useWorkbenchGear(player, companion, item) {
+  if (!player.isValid || !fullMember(player) || player.getGameMode() === GameMode.Spectator
+    || !companion.isValid || locate(player)?.id !== companion.id) return;
+  const held = player.getComponent("minecraft:equippable")?.getEquipment(EquipmentSlot.Mainhand);
+  if (held?.typeId !== item || player.dimension.id !== companion.dimension.id
+    || distance2(player.location, companion.location) > 25) return;
+  if (item === "cc:camp_tag") return toggleStay(player);
+
+  if (item === "cc:healing_salve") {
+    const health = companion.getComponent("minecraft:health");
+    if (!health || health.currentValue <= 0 || health.currentValue >= health.effectiveMax) {
+      return reply(player, "Your companion doesn't need salve right now.");
+    }
+    if (!health.setCurrentValue(Math.min(health.effectiveMax, health.currentValue + 8))) return;
+  } else {
+    if ((companion.getEffect("resistance")?.duration ?? 0) >= 20 * 20) {
+      return reply(player, "Your companion already has enough resistance.");
+    }
+    companion.addEffect("resistance", 30 * 20, { amplifier: 0, showParticles: false });
+  }
+  if (player.getGameMode() !== GameMode.Creative) consumeHeldItem(player, item);
+  reply(player, item === "cc:healing_salve" ? "Applied Healing Salve to your companion." : "Your companion has damage resistance for 30 seconds.");
+}
+
 async function changeAppearance(player, companionId) {
   await system.waitTicks(1);
   if (!player.isValid || !fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
@@ -849,6 +875,10 @@ world.beforeEvents.playerInteractWithEntity.subscribe(event => {
       system.run(() => guarded("take", () => {
         if (player.isValid && target.isValid && locate(player)?.id === target.id) collectBack(player, target);
       }));
+    } else if (owner === player.id && workbenchGear.has(itemStack?.typeId)) {
+      event.cancel = true;
+      const item = itemStack.typeId;
+      system.run(() => guarded("workbench gear", () => useWorkbenchGear(player, target, item)));
     } else if (owner === player.id && itemStack?.typeId === "cc:companion_toy") {
       event.cancel = true;
       system.run(() => guarded("companion toy", () => {

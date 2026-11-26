@@ -1,0 +1,31 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "cc:guard_biscuit"
+    },
+    "tags": [
+      "cc_companion_workbench"
+    ],
+    "ingredients": [
+      {
+        "item": "minecraft:wheat"
+      },
+      {
+        "item": "minecraft:pumpkin_seeds"
+      },
+      {
+        "item": "minecraft:cooked_beef"
+      }
+    ],
+    "unlock": [
+      {
+        "item": "minecraft:wheat"
+      }
+    ],
+    "result": {
+      "item": "cc:guard_biscuit",
+      "count": 2
+    }
+  }
+}

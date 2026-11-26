@@ -2,7 +2,7 @@
   "format_version": "1.21.90",
   "minecraft:recipe_shaped": {
     "description": { "identifier": "cc:companion_toy" },
-    "tags": ["crafting_table"],
+    "tags": ["crafting_table", "cc_companion_workbench"],
     "pattern": [" S ", "SWS", " S "],
     "key": {
       "S": { "item": "minecraft:string" },
