@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.6.5
+
+- Preserve Stay and restore an appropriate pose when a saved companion loads. Repeated join events leave an active job in place.
+- Isolate world-start recovery failures so another saved companion can still rejoin. Restore following on a successful whistle recall.
+- Prevent a form from a disconnected session from handling input or unlocking a newer companion menu.
+
+
 ## 3.6.4
 
 - Rebuilt all 50 archive appearances with hand-authored voxel designs and painted faces, outfits, and accessories based on Penney's references. Companion menu icons now show the actual in-game models.

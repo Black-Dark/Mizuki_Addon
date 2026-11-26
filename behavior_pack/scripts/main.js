@@ -10,11 +10,11 @@ import { canClimb, cell, center, clearSight, distance2, getBlock, key, ledgeRout
 import { eligible, forgetPlacement, harvest, heldTool, makeTrigger, reachableCandidates, trackPlacement, withinWorkRange } from "./resources.js";
 
 const TYPE = "ochub:mizuki_todoroki";
-const PACK_VERSION = "3.6.4";
+const PACK_VERSION = "3.6.5";
 const BACKPACK_CAPACITY = 36;
 const ACTIVITY_TICKS = 320;
 const WORK_BATCH_SIZE = 4;
-const openMenus = new Set();
+const openMenus = new Map();
 const menuRequests = new Map();
 const tasks = new Map();
 const claims = new Map();
@@ -149,10 +149,20 @@ function park(pet, task) {
 
 function register(player, pet) {
   prepareStorage(pet);
+  const task = getTask(player.id);
+  if (task.attachedPetId === pet.id) return;
   pet.setDynamicProperty(ownerKey, player.id);
   player.setDynamicProperty(packKey, pet.id);
   remember(pet, player.id);
-  pet.triggerEvent("cc:resume_follow");
+  if (pet.getDynamicProperty(stayKey)) {
+    task.pausedAI = false;
+    park(pet, task);
+    setPose(pet, "idle");
+  } else {
+    task.pausedAI = true;
+    follow(pet, task);
+  }
+  task.attachedPetId = pet.id;
 }
 
 function recoverLegacy(pet) {
@@ -167,12 +177,12 @@ function recoverLegacy(pet) {
   }
   if (owner) {
     register(owner, pet);
-    tasks.delete(ownerId);
   }
   else {
     pet.setDynamicProperty(ownerKey, ownerId);
     remember(pet, ownerId);
     pet.triggerEvent("cc:pause_follow");
+    setPose(pet, "idle");
   }
 }
 
@@ -199,19 +209,18 @@ function recallTo(pet, player) {
   pet.clearVelocity();
   pet.extinguishFire();
   remember(pet, player.id);
-  const task = tasks.get(player.id);
-  if (task) {
-    task.defense = undefined;
-    task.job = undefined;
-    if (task.guide) {
-      task.guide.route = undefined;
-      task.guide.nextPlan = now();
-    }
-    task.trigger = undefined;
-    task.lastMove = now();
-    task.recallAt = now() + 200;
-    follow(pet, task, "idle");
+  const task = getTask(player.id);
+  task.defense = undefined;
+  task.job = undefined;
+  if (task.guide) {
+    task.guide.route = undefined;
+    task.guide.nextPlan = now();
   }
+  task.trigger = undefined;
+  task.lastMove = now();
+  task.recallAt = now() + 200;
+  task.pausedAI = true;
+  follow(pet, task, "idle");
   return true;
 }
 
@@ -656,7 +665,8 @@ async function showMenu(player) {
   if (!player.isValid || !fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
   if (openMenus.has(player.id) || (menuRequests.get(player.id) ?? -10) + 8 > now()) return;
   menuRequests.set(player.id, now());
-  openMenus.add(player.id);
+  const session = {};
+  openMenus.set(player.id, session);
   try {
     const pet = locate(player);
     const storage = inv(pet);
@@ -699,13 +709,13 @@ async function showMenu(player) {
     else button("Pause automatic work", pauseWork);
     button(sortEnabled ? "Pause chest sorting" : "Resume chest sorting", toggleSorting);
     const result = await form.show(player);
-    if (!player.isValid || !fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
+    if (openMenus.get(player.id) !== session || !player.isValid || !fullMember(player) || player.getGameMode() === GameMode.Spectator) return;
     if (result.cancelationReason === FormCancelationReason.UserBusy) {
       return reply(player, "Close your chat or inventory, then use the whistle again.");
     }
     if (!result.canceled && result.selection !== undefined) await actions[result.selection]?.(player);
   } finally {
-    openMenus.delete(player.id);
+    if (openMenus.get(player.id) === session) openMenus.delete(player.id);
   }
 }
 
@@ -787,13 +797,16 @@ system.beforeEvents.startup.subscribe(({ customCommandRegistry, itemComponentReg
   }
 });
 
-world.afterEvents.worldLoad.subscribe(() => guarded("world load", () => {
-  world.tickingAreaManager.removeAllTickingAreas();
+world.afterEvents.worldLoad.subscribe(() => {
+  guarded("recall cleanup", () => world.tickingAreaManager.removeAllTickingAreas());
   for (const id of ["overworld", "nether", "the_end"]) {
-    for (const pet of world.getDimension(id).getEntities({ type: TYPE })) recoverLegacy(pet);
+    guarded(`world load (${id})`, () => {
+      for (const pet of world.getDimension(id).getEntities({ type: TYPE })) {
+        guarded("pet load", () => recoverLegacy(pet));
+      }
+    });
   }
-  console.warn("[Chibi Companions] Mizuki loaded (stable API 2.10.0).");
-}));
+});
 world.afterEvents.entityLoad.subscribe(({ entity }) => {
   if (entity.typeId === TYPE) guarded("pet load", () => recoverLegacy(entity));
 });
@@ -813,10 +826,11 @@ world.afterEvents.entityDie.subscribe(({ deadEntity }) => {
     tasks.delete(id);
   });
 });
-world.afterEvents.playerSpawn.subscribe(({ player }) => guarded("player spawn", () => {
+world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => guarded("player spawn", () => {
   const dead = world.getDynamicProperty(`cc:dead:${player.id}`);
   if (dead && dead === player.getDynamicProperty(packKey)) player.setDynamicProperty(packKey, undefined);
   if (dead) world.setDynamicProperty(`cc:dead:${player.id}`, undefined);
+  if (!initialSpawn) stopGuide(player, "");
   const pet = locate(player);
   if (pet) recoverLegacy(pet);
 }));
@@ -1528,8 +1542,4 @@ world.afterEvents.playerDimensionChange.subscribe(({ player }) => {
     stopGuide(player, "Home guidance stopped because you changed dimensions.");
     recallTo(pet, player);
   });
-});
-
-world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
-  if (!initialSpawn) guarded("respawn guide", () => stopGuide(player, ""));
 });
