@@ -10,7 +10,7 @@ import { canClimb, cell, center, clearSight, distance2, getBlock, key, ledgeRout
 import { eligible, forgetPlacement, harvest, heldTool, makeTrigger, reachableCandidates, trackPlacement, withinWorkRange } from "./resources.js";
 
 const TYPE = "ochub:mizuki_todoroki";
-const PACK_VERSION = "3.6.3";
+const PACK_VERSION = "3.6.4";
 const BACKPACK_CAPACITY = 36;
 const ACTIVITY_TICKS = 320;
 const WORK_BATCH_SIZE = 4;

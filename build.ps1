@@ -36,8 +36,8 @@ try {
     $packs = (New-Item -ItemType Directory (Join-Path $temp.FullName packs)).FullName
     $stagedResources = Join-Path $temp.FullName resource_pack
     Copy-Item -LiteralPath $resources -Destination $stagedResources -Recurse
-    # The original artwork is already checked in. Reuse its model and OC textures.
-    $artwork = [System.IO.Compression.ZipFile]::OpenRead((Join-Path $root 'Chibi-Companions-3.6.2-Source.zip'))
+    # Copy the authored archive models, atlases, and menu icons into the staged pack.
+    $artwork = [System.IO.Compression.ZipFile]::OpenRead((Join-Path $root 'Chibi-Companions-Archive-Art.zip'))
     try {
         foreach ($entry in $artwork.Entries) {
             if ($entry.FullName -notmatch '^resource_pack/(models/entity/oc_hub_chibis\.geo\.json|textures/(entity|ui/companions)/oc_[a-z0-9_]+\.png)$') {

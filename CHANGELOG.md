@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.6.4
+
+- Rebuilt all 50 archive appearances with hand-authored voxel designs and painted faces, outfits, and accessories based on Penney's references. Companion menu icons now show the actual in-game models.
+- Added character-specific greetings, recall lines, supply reactions, and profile descriptions, with work and sorting replies matched to their personalities.
+- Added subtle idle gestures for the archive personalities while keeping the six original appearances and the saved appearance indices.
+
+
 ## 3.6.3
 
 - Combined the 3.6.2 roster, flight, bed guidance, gear recovery, defense and stay/follow with the separate moving, crafting, and building features.

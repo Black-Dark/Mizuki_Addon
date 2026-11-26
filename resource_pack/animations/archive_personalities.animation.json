@@ -1,0 +1,130 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.ochub.companion.archive_idle_stern": {
+      "loop": true,
+      "animation_length": 4.0,
+      "bones": {
+        "head": {
+          "rotation": [
+            0,
+            "math.sin(query.anim_time * 90) * 2.4",
+            0
+          ]
+        }
+      }
+    },
+    "animation.ochub.companion.archive_idle_shy": {
+      "loop": true,
+      "animation_length": 4.0,
+      "bones": {
+        "head": {
+          "rotation": [
+            "3.0 + math.sin(query.anim_time * 90) * 1.5",
+            0,
+            -2.5
+          ]
+        },
+        "left_arm": {
+          "rotation": [
+            0,
+            0,
+            -2
+          ]
+        }
+      }
+    },
+    "animation.ochub.companion.archive_idle_grin": {
+      "loop": true,
+      "animation_length": 3.0,
+      "bones": {
+        "head": {
+          "rotation": [
+            -2,
+            0,
+            "math.sin(query.anim_time * 120) * 4"
+          ]
+        },
+        "left_arm": {
+          "rotation": [
+            "-4 + math.sin(query.anim_time * 120) * 4",
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "animation.ochub.companion.archive_idle_soft": {
+      "loop": true,
+      "animation_length": 5.0,
+      "bones": {
+        "head": {
+          "rotation": [
+            "math.sin(query.anim_time * 72) * 2",
+            0,
+            2
+          ]
+        },
+        "body": {
+          "rotation": [
+            0,
+            "math.sin(query.anim_time * 72) * 1",
+            0
+          ]
+        }
+      }
+    },
+    "animation.ochub.companion.archive_idle_smirk": {
+      "loop": true,
+      "animation_length": 3.6,
+      "bones": {
+        "head": {
+          "rotation": [
+            -1,
+            "math.sin(query.anim_time * 100) * 2",
+            -4
+          ]
+        }
+      }
+    },
+    "animation.ochub.companion.archive_idle_slant": {
+      "loop": true,
+      "animation_length": 4.5,
+      "bones": {
+        "head": {
+          "rotation": [
+            0,
+            "math.sin(query.anim_time * 80) * 2.2",
+            2
+          ]
+        }
+      }
+    },
+    "animation.ochub.companion.archive_idle_blank": {
+      "loop": true,
+      "animation_length": 5.0,
+      "bones": {
+        "head": {
+          "rotation": [
+            0,
+            0,
+            "math.sin(query.anim_time * 72) * 2.8"
+          ]
+        }
+      }
+    },
+    "animation.ochub.companion.archive_idle_tired": {
+      "loop": true,
+      "animation_length": 6.0,
+      "bones": {
+        "head": {
+          "rotation": [
+            "5 + (1 - math.cos(query.anim_time * 60)) * 2",
+            0,
+            -2
+          ]
+        }
+      }
+    }
+  }
+}

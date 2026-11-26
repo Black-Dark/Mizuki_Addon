@@ -148,7 +148,15 @@
         "archive_pickup": "animation.ochub.mizuki.archive_pickup",
         "archive_happy": "animation.ochub.mizuki.archive_happy",
         "archive_climb": "animation.ochub.mizuki.archive_climb",
-        "defend": "animation.ochub.companion.defend"
+        "defend": "animation.ochub.companion.defend",
+        "archive_idle_stern": "animation.ochub.companion.archive_idle_stern",
+        "archive_idle_shy": "animation.ochub.companion.archive_idle_shy",
+        "archive_idle_grin": "animation.ochub.companion.archive_idle_grin",
+        "archive_idle_soft": "animation.ochub.companion.archive_idle_soft",
+        "archive_idle_smirk": "animation.ochub.companion.archive_idle_smirk",
+        "archive_idle_slant": "animation.ochub.companion.archive_idle_slant",
+        "archive_idle_blank": "animation.ochub.companion.archive_idle_blank",
+        "archive_idle_tired": "animation.ochub.companion.archive_idle_tired"
       },
       "scripts": {
         "animate": [

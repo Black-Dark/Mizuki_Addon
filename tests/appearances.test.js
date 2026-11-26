@@ -5,7 +5,7 @@ import { inflateRawSync } from "node:zlib";
 import { appearanceOf, appearances } from "../behavior_pack/scripts/appearances.js";
 
 const source = path => new URL("../" + path, import.meta.url);
-const archive = readFileSync(source("Chibi-Companions-3.6.2-Source.zip"));
+const archive = readFileSync(source("Chibi-Companions-Archive-Art.zip"));
 const central = archive.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
 const files = new Map();
 let offset = archive.readUInt32LE(central + 16);
@@ -81,9 +81,47 @@ test("archive chibis use solid limb rigs and dedicated, grounded walk animations
   for (const model of models) {
     const bones = new Map(model.bones.map(bone => [bone.name, bone]));
     for (const name of ["left_leg", "right_leg", "left_arm", "right_arm", "body", "head"]) {
-      assert.ok(bones.get(name).cubes.length <= 2);
+      assert.ok(bones.get(name).cubes.length > 0);
       assert.ok(bones.get(name).cubes[0].size[2] >= 3);
       assert.notDeepEqual(bones.get(name).cubes[0].uv.north, bones.get(name).cubes[0].uv.south);
     }
+    for (const name of ["backpack", "axe", "pickaxe"]) assert.ok(bones.get(name).cubes.length);
+    const head = bones.get("head").cubes;
+    assert.ok(head.length >= 10, "hair and face should be separate layers");
+    for (const bone of model.bones) {
+      for (const cube of bone.cubes ?? []) {
+        for (const { uv: [x, y], uv_size: [width, height] } of Object.values(cube.uv)) {
+          assert.ok(x >= 0 && y >= 0 && width > 0 && height > 0);
+          assert.ok(x + width <= model.description.texture_width && y + height <= model.description.texture_height);
+        }
+      }
+    }
   }
+});
+
+test("each archive appearance has its own dialogue and exactly one grounded idle gesture", () => {
+  const original = 9;
+  const profiles = appearances.slice(original);
+  for (const line of ["trait", "greeting", "recalled", "handedOver", "empty"]) {
+    assert.equal(new Set(profiles.map(profile => profile[line])).size, profiles.length, line);
+    assert.ok(profiles.every(profile => profile[line]?.length > 0));
+  }
+  const client = json("resource_pack/entity/mizuki.entity.json")["minecraft:client_entity"].description;
+  const { animations } = json("resource_pack/animations/archive_personalities.animation.json");
+  const { states } = json("resource_pack/animation_controllers/mizuki.animation_controllers.json")
+    .animation_controllers[client.animations.pose];
+  const cases = new Map();
+  for (const animation of states.default.animations) {
+    const [alias, condition] = Object.entries(animation)[0];
+    if (!alias.startsWith("archive_idle_")) continue;
+    assert.ok(animations[client.animations[alias]]);
+    assert.equal(animations[client.animations[alias]].bones.root, undefined);
+    assert.match(condition, /query.property\('cc:pose'\) == 'idle'/);
+    for (const match of condition.matchAll(/cc:appearance'\) == (\d+)/g)) {
+      const index = Number(match[1]);
+      assert.ok(!cases.has(index), "appearance has more than one idle gesture");
+      cases.set(index, alias);
+    }
+  }
+  assert.deepEqual([...cases.keys()].sort((a, b) => a - b), profiles.map((_, i) => i + original));
 });
