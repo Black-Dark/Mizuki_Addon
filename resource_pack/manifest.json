@@ -2,12 +2,12 @@
   "format_version": 2,
   "header": {
     "name": "Chibi Companions — Mizuki Resources",
-    "description": "56 appearances, companion workshop, home guidance and gear recovery.",
+    "description": "Mizuki companions with a themed title screen, HUD and container screens.",
     "uuid": "966cba6a-1b13-49b7-a42c-4c50fa4913b8",
     "version": [
       3,
       7,
-      0
+      7
     ],
     "min_engine_version": [
       1,
@@ -22,7 +22,7 @@
       "version": [
         3,
         7,
-        0
+        7
       ]
     }
   ]

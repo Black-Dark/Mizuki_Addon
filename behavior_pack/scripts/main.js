@@ -1,6 +1,6 @@
 import { ActionFormData, FormCancelationReason } from "@minecraft/server-ui";
 import { BlockVolume, CommandPermissionLevel, CustomCommandStatus, EntityDamageCause, GameMode, ItemStack, Player, PlayerPermissionLevel, system, world } from "@minecraft/server";
-import { appearanceKey, appearanceOf, appearances } from "./appearances.js";
+import { appearanceKey, appearanceOf, appearances, hudThemes } from "./appearances.js";
 import { abortFlight, advanceFlight, followFlight, planFlight } from "./flight.js";
 import { recoverStack } from "./death-recovery.js";
 import { canStrike, mobThreat } from "./defense.js";
@@ -10,7 +10,7 @@ import { canClimb, cell, center, clearSight, distance2, getBlock, key, ledgeRout
 import { eligible, forgetPlacement, harvest, heldTool, makeTrigger, reachableCandidates, trackPlacement, withinWorkRange } from "./resources.js";
 
 const TYPE = "ochub:mizuki_todoroki";
-const PACK_VERSION = "3.7.0";
+const PACK_VERSION = "3.7.7";
 const BACKPACK_CAPACITY = 36;
 const ACTIVITY_TICKS = 320;
 const WORK_BATCH_SIZE = 4;
@@ -49,6 +49,10 @@ const sortOffKey = "cc:sort_off";
 const workOffKey = "cc:work_off";
 const recoveredKey = "cc:recovered_gear";
 const stayKey = "cc:stay";
+const hudKey = "cc:hud_mode";
+const hudModes = ["Off", "Companion", "Navigation", "Both"];
+const defaultHudMode = 1;
+const compassPoints = ["S", "SW", "W", "NW", "N", "NE", "E", "SE"];
 const storageLayoutKey = "cc:storage_layout";
 const legacyCargoKey = "cc:legacy_cargo";
 const inv = entity => entity?.getComponent("minecraft:inventory")?.container;
@@ -90,7 +94,7 @@ function hasContents(block) {
 }
 const tame = entity => entity.getComponent("minecraft:tameable");
 const reply = (player, message) => player.sendMessage(`§b[Chibi Companions]§r ${message}`);
-const speak = (player, profile, line) => player.sendMessage(`§b[${profile.voice}]§r ${line}`);
+const speak = (player, profile, line) => player.sendMessage(`${hudTheme(profile).color}[${profile.voice}]§r ${line}`);
 const now = () => system.currentTick;
 const linkKey = id => `cc:owner-link:${id}`;
 const fullMember = player => player.playerPermissionLevel === PlayerPermissionLevel.Member
@@ -678,6 +682,7 @@ async function changeAppearance(player, companionId) {
       if (ownedPet?.id !== companionId) return reply(player, "Call your companion before changing its appearance.");
       if (index === saved) return;
       ownedPet.setProperty(appearanceKey, index);
+      displayHud(player, ownedPet, tasks.get(player.id), player.getDynamicProperty(hudKey) ?? defaultHudMode, appearance);
       return speak(player, appearance, appearance.greeting);
     }
     const next = navigation[result.selection - choices.length];
@@ -703,6 +708,7 @@ async function showMenu(player) {
     const appearance = appearanceOf(pet);
     const form = new ActionFormData().title(pet ? appearance.name : "Chibi Companions").body([
       "Chibi Companions " + PACK_VERSION,
+      ...(pet ? ["HUD theme: " + hudTheme(appearance).name] : []),
       bag ? `Backpack  ${bag.size - bag.emptySlotsCount} / ${bag.size} slots` : "Your companion is away or hasn’t joined you yet.",
       ...(bag && bag.size < BACKPACK_CAPACITY ? ["This companion still has its older backpack."] : []),
       ...(moving?.size ? [`Moving inventory  ${moving.size - moving.emptySlotsCount} / ${moving.size} slots`] : []),
@@ -731,6 +737,8 @@ async function showMenu(player) {
       button(pet.getDynamicProperty(stayKey) ? "Follow me" : "Stay here", toggleStay);
     }
     button("Companion status", companionStatus);
+    const hudMode = player.getDynamicProperty(hudKey) ?? defaultHudMode;
+    button("HUD: " + hudModes[hudMode] + " · Change mode", cycleHud);
     if (workPaused) button("Resume automatic work", resumeWork);
     else button("Pause automatic work", pauseWork);
     button(sortEnabled ? "Pause chest sorting" : "Resume chest sorting", toggleSorting);
@@ -1394,6 +1402,55 @@ function toggleStay(player) {
   reply(player, "Your companion will stay here. Use Call companion when you're ready.");
 }
 
+function hudTheme(appearance) {
+  return hudThemes[appearance.hudTheme] ?? hudThemes.orchid;
+}
+
+function cycleHud(player) {
+  const next = ((player.getDynamicProperty(hudKey) ?? defaultHudMode) + 1) % hudModes.length;
+  player.setDynamicProperty(hudKey, next);
+  const task = tasks.get(player.id);
+  if (!task?.guide) {
+    if (next === 0) player.onScreenDisplay.setActionBar("");
+    else displayHud(player, locate(player), task, next);
+  }
+  reply(player, "HUD: " + hudModes[next]);
+}
+
+function displayHud(player, pet, task, mode, appearance = appearanceOf(pet)) {
+  if (!mode || task?.guide || player.getGameMode() === GameMode.Spectator) return;
+  const theme = hudTheme(appearance);
+  const lines = [];
+  if (mode & 1) {
+    const parts = [theme.color + (pet ? appearance.voice : "Companion") + "§r"];
+    if (pet) {
+      const health = pet.getComponent("minecraft:health");
+      const activity = pet.getDynamicProperty(stayKey) ? "Staying"
+        : task?.defense ? "Defending"
+        : task?.job?.kind === "work" ? "Gathering"
+        : task?.job?.kind === "pickup" ? "Collecting"
+        : task?.job?.kind === "sort" ? "Sorting" : "Following";
+      parts.push(activity);
+      if (health) parts.push(Math.ceil(health.currentValue) + " HP");
+      if (pet.dimension.id === player.dimension.id) {
+        parts.push(Math.round(Math.sqrt(distance2(player.location, pet.location))) + " blocks");
+      } else {
+        parts.push("Other dimension");
+      }
+    } else {
+      parts.push("Away");
+    }
+    lines.push(parts.join("  "));
+  }
+  if (mode & 2) {
+    const { x, y, z } = cell(player.location);
+    const sector = Math.round(player.getRotation().y / 45);
+    const heading = compassPoints[(sector + 8) % 8];
+    lines.push(theme.color + heading + "§r  XYZ " + x + " / " + y + " / " + z);
+  }
+  player.onScreenDisplay.setActionBar(lines.join("\n"));
+}
+
 function companionStatus(player) {
   const pet = locate(player);
   if (!pet) {
@@ -1540,6 +1597,7 @@ system.runInterval(() => {
     guarded("companion tick", () => {
       const pet = locate(player);
       if (pet) update(player, pet, tick);
+      if (tick % 20 === 0) displayHud(player, pet, tasks.get(player.id), player.getDynamicProperty(hudKey) ?? defaultHudMode);
     });
   }
   if (tick % 100 === 0) {
