@@ -33,21 +33,37 @@ try {
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $temp = New-Item -ItemType Directory (Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString()))
 try {
-    foreach ($pack in @(@{Source=$behavior; File='Mizuki_Behavior.mcpack'}, @{Source=$resources; File='Mizuki_Resources.mcpack'})) {
-        $path = Join-Path $temp.FullName $pack.File
+    $packs = (New-Item -ItemType Directory (Join-Path $temp.FullName packs)).FullName
+    $stagedResources = Join-Path $temp.FullName resource_pack
+    Copy-Item -LiteralPath $resources -Destination $stagedResources -Recurse
+    # Copy the authored archive models, atlases, and menu icons into the staged pack.
+    $artwork = [System.IO.Compression.ZipFile]::OpenRead((Join-Path $root 'Chibi-Companions-Archive-Art.zip'))
+    try {
+        foreach ($entry in $artwork.Entries) {
+            if ($entry.FullName -notmatch '^resource_pack/(models/entity/oc_hub_chibis\.geo\.json|textures/(entity|ui/companions)/oc_[a-z0-9_]+\.png)$') {
+                continue
+            }
+            $target = Join-Path $temp.FullName $entry.FullName
+            New-Item -ItemType Directory -Force (Split-Path $target) | Out-Null
+            [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $target, $false)
+        }
+    } finally {
+        $artwork.Dispose()
+    }
+    foreach ($pack in @(@{Source=$behavior; File='Mizuki_Behavior.mcpack'}, @{Source=$stagedResources; File='Mizuki_Resources.mcpack'})) {
+        $path = Join-Path $packs $pack.File
         [System.IO.Compression.ZipFile]::CreateFromDirectory($pack.Source, $path)
     }
     $zip = Join-Path $root "dist/Chibi-Companions-Mizuki-$version.mcaddon"
     New-Item -ItemType Directory -Force (Split-Path $zip) | Out-Null
     $candidate = Join-Path $temp.Parent.FullName ($temp.Name + '.mcaddon')
     try {
-        [System.IO.Compression.ZipFile]::CreateFromDirectory($temp.FullName, $candidate)
+        [System.IO.Compression.ZipFile]::CreateFromDirectory($packs, $candidate)
         Copy-Item -LiteralPath $candidate -Destination $zip -Force
     } finally {
         if (Test-Path -LiteralPath $candidate) { Remove-Item -LiteralPath $candidate }
     }
     Write-Output $zip
 } finally {
-    $temp.GetFiles() | ForEach-Object { Remove-Item -LiteralPath $_.FullName }
-    Remove-Item -LiteralPath $temp.FullName
+    Remove-Item -LiteralPath $temp.FullName -Recurse -Force
 }

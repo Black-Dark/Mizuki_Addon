@@ -7,3 +7,7 @@ item.cc:moving_box.name=Moving Box
 item.cc:packing_tape.name=Packing Tape
 item.cc:companion_treat.name=Companion Treat
 item.cc:companion_toy.name=Companion Toy
+tile.cc:companion_workbench.name=Companion Workbench
+item.cc:healing_salve.name=Healing Salve
+item.cc:guard_biscuit.name=Guard Biscuit
+item.cc:camp_tag.name=Camp Tag

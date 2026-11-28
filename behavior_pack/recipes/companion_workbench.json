@@ -1,0 +1,31 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "cc:companion_workbench"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "ingredients": [
+      {
+        "item": "minecraft:crafting_table"
+      },
+      {
+        "item": "minecraft:chest"
+      },
+      {
+        "item": "minecraft:copper_ingot"
+      }
+    ],
+    "unlock": [
+      {
+        "item": "minecraft:crafting_table"
+      }
+    ],
+    "result": {
+      "item": "cc:companion_workbench",
+      "count": 1
+    }
+  }
+}

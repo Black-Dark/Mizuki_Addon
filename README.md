@@ -6,7 +6,9 @@ The starting point is the supplied Chibi_Companions_Mizuki-3.0.mcaddon. The work
 
 - behavior_pack/scripts: whistle, ownership, work areas, gathering and sorting
 - behavior_pack/entities and items: companion and whistle definitions
-- resource_pack: model, textures, animations and in-game text
+- resource_pack: base models, textures, animations and in-game text
+- Chibi-Companions-Archive-Art.zip: rebuilt archive chibi models, textures, and menu icons included by the build
+- art: character-specific visual designs and the artwork generator
 - tests: inventory and terrain checks
 - CHANGELOG.md: record what each release changes and which devices tested it
 
