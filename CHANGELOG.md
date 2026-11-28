@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.8.0
+
+- Added eight manually selectable resource-pack palettes for the hotbar, health hearts, XP bar and container screens. Amethyst is the default. The companion HUD readouts continue to follow the selected skin automatically.
+
 ## 3.7.7
 
 - Companion readouts appear by default for players without a saved HUD preference. Companion dialogue also uses the active skin’s accent, including the greeting after changing appearance.
