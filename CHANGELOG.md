@@ -1,5 +1,34 @@
 # Changelog
 
+## 3.7.7
+
+- Companion readouts appear by default for players without a saved HUD preference. Companion dialogue also uses the active skin’s accent, including the greeting after changing appearance.
+
+## 3.7.6
+
+- Added eight skin-matched accent palettes. Companion and Navigation readouts follow the active appearance, and the whistle menu lists its theme.
+
+## 3.7.5
+
+- Stretched the title-screen background to the full screen so wide phones no longer show the original panorama along the sides.
+
+## 3.7.4
+
+- Added an optional HUD with companion activity, health and distance, plus a compass and coordinates mode. Change the mode with the Snowdrop Whistle. Bed guidance takes priority over the readout.
+
+## 3.7.3
+
+- Added a twilight title-screen background and a charcoal-and-lilac button theme. Enable Mizuki Resources under Global Resources on mobile or Windows for the main menu.
+
+## 3.7.2
+
+- Matched the inventory, crafting table, furnace family and chest family to the Mizuki HUD palette using Bedrock container textures.
+
+## 3.7.1
+
+- Added the Mizuki HUD for Minecraft Bedrock. The charcoal hotbar, lilac selection and XP, and colour-coded health, hunger, and armour use the native HUD layout and controls.
+- On Android or iOS, open the .mcaddon in Minecraft and activate the packs on your world. For Nintendo Switch, import on mobile or Windows and join a Realm running the packs from the Switch. Mobile and Switch gameplay still needs device verification.
+
 ## 3.7.0
 
 - Craft a placeable Companion Workbench from a crafting table, a chest, and a copper ingot at a regular crafting table.

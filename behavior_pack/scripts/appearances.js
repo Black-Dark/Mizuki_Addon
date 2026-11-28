@@ -1,9 +1,20 @@
+export const hudThemes = {
+  orchid: { name: "Amethyst", color: "§u" },
+  blue: { name: "Storm Blue", color: "§9" },
+  aqua: { name: "Frost Aqua", color: "§b" },
+  silver: { name: "Moonlight", color: "§f" },
+  red: { name: "Ember", color: "§c" },
+  gold: { name: "Sun Gold", color: "§6" },
+  rose: { name: "Wild Rose", color: "§d" },
+  lime: { name: "Spring Green", color: "§a" }
+};
+
 export const appearanceKey = "cc:appearance";
 
 // The indices are saved on the entity and match the resource pack's render arrays.
 export const appearances = [
   {
-    icon: "mizuki", name: "Mizuki Todoroki", voice: "Mizuki", trait: "Gentle and dependable",
+    icon: "mizuki", hudTheme: "orchid", name: "Mizuki Todoroki", voice: "Mizuki", trait: "Gentle and dependable",
     greeting: "Hi again! I’ve got your back.",
     recalled: "Little Snowdrop, right here!",
     handedOver: "Here you go. I kept it all safe.",
@@ -14,7 +25,7 @@ export const appearances = [
     sortingResumed: "I’ll put things where they belong."
   },
   {
-    icon: "sora", name: "Sora Aizawa-Yamada", voice: "Sora", trait: "Curious and mischievous",
+    icon: "sora", hudTheme: "blue", name: "Sora Aizawa-Yamada", voice: "Sora", trait: "Curious and mischievous",
     canFly: true,
     greeting: "Tell me we’re going somewhere weird today.",
     recalled: "Found you! What did I miss?",
@@ -26,7 +37,7 @@ export const appearances = [
     sortingResumed: "Okay, shiny stuff goes in the right chests. Mostly kidding."
   },
   {
-    icon: "yukishiro", name: "Yukishiro Renka Aizawa", voice: "Yukishiro", trait: "Shy, sleepy, and affectionate",
+    icon: "yukishiro", hudTheme: "silver", name: "Yukishiro Renka Aizawa", voice: "Yukishiro", trait: "Shy, sleepy, and affectionate",
     greeting: "Oh… hi. Is it okay if I stay close?",
     recalled: "I’m here… you can put the whistle away now.",
     handedOver: "Here. I was saving these for you.",
@@ -37,7 +48,7 @@ export const appearances = [
     sortingResumed: "Okay. I’ll put our things away quietly."
   },
   {
-    icon: "shion", name: "Shion Veyr Clive", voice: "Shion", trait: "Perceptive and quietly sarcastic",
+    icon: "shion", hudTheme: "red", name: "Shion Veyr Clive", voice: "Shion", trait: "Perceptive and quietly sarcastic",
     greeting: "I’ve surveyed the area. The dirt is exactly where we left it.",
     recalled: "You called. I assume the dirt has put up a fight.",
     handedOver: "Your supplies. I trust you’ll use better judgment than the last chest did.",
@@ -48,7 +59,7 @@ export const appearances = [
     sortingResumed: "I’ll restore order. The chests set a low bar."
   },
   {
-    icon: "lucien", name: "Lucien Aurelius Morningstar", voice: "Lucien", trait: "Sophisticated and diplomatic",
+    icon: "lucien", hudTheme: "orchid", name: "Lucien Aurelius Morningstar", voice: "Lucien", trait: "Sophisticated and diplomatic",
     greeting: "A pleasure. Where shall we turn our attention today?",
     recalled: "At your side, as requested.",
     handedOver: "Your supplies, in good order.",
@@ -59,7 +70,7 @@ export const appearances = [
     sortingResumed: "I’ll see to it that each item reaches its proper chest."
   },
   {
-    icon: "naoki", name: "Naoki Aizawa-Yamada", voice: "Naoki", trait: "Quiet, sharp, and dryly caring",
+    icon: "naoki", hudTheme: "orchid", name: "Naoki Aizawa-Yamada", voice: "Naoki", trait: "Quiet, sharp, and dryly caring",
     greeting: "Hey. I’ve got the bag. Go do your thing.",
     recalled: "Here. You could’ve just said my name.",
     handedOver: "Take these. I carried them for a reason.",
@@ -71,7 +82,7 @@ export const appearances = [
   },
   null, null, null,
   {
-    "icon": "oc_lex_aizawa_yamada_da91365f",
+    "icon": "oc_lex_aizawa_yamada_da91365f", hudTheme: "red",
     "name": "Lex Aizawa-Yamada",
     "voice": "Lex",
     "trait": "Disciplined and fiercely protective",
@@ -85,7 +96,7 @@ export const appearances = [
     "sortingResumed": "I’ll sort it and stand watch while you work."
   },
   {
-    "icon": "oc_seiran_todoroki_16afb5ce",
+    "icon": "oc_seiran_todoroki_16afb5ce", hudTheme: "blue",
     "name": "Seiran Todoroki",
     "voice": "Seiran",
     "trait": "Polite, eerie, quietly mischievous",
@@ -99,7 +110,7 @@ export const appearances = [
     "sortingResumed": "Fine, even the shiny things go in their proper chests."
   },
   {
-    "icon": "oc_hikari_takami_9175bb8b",
+    "icon": "oc_hikari_takami_9175bb8b", hudTheme: "blue",
     "name": "Hikari Takami",
     "voice": "Hikari",
     "trait": "Quiet, sweet, unnervingly observant",
@@ -113,7 +124,7 @@ export const appearances = [
     "sortingResumed": "I’ll put the supplies where they fit."
   },
   {
-    "icon": "oc_lucien_noctis_dreyar_13f0f545",
+    "icon": "oc_lucien_noctis_dreyar_13f0f545", hudTheme: "silver",
     "name": "Lucien Noctis Dreyar",
     "voice": "Lucien",
     "trait": "Gentle, shy, quietly mischievous",
@@ -127,7 +138,7 @@ export const appearances = [
     "sortingResumed": "I’ll put everything away for you."
   },
   {
-    "icon": "oc_elian_vesper_dreyar_b075ed00",
+    "icon": "oc_elian_vesper_dreyar_b075ed00", hudTheme: "blue",
     "name": "Elian Vesper Dreyar",
     "voice": "Elian",
     "trait": "Theatrical, cheeky, affectionate",
@@ -141,7 +152,7 @@ export const appearances = [
     "sortingResumed": "Places, everyone. It’s time to sort."
   },
   {
-    "icon": "oc_kuro_aizawa_9a31ea06",
+    "icon": "oc_kuro_aizawa_9a31ea06", hudTheme: "aqua",
     "name": "Kuro Aizawa",
     "voice": "Kuro",
     "trait": "Calm, introverted, stubbornly loyal",
@@ -155,7 +166,7 @@ export const appearances = [
     "sortingResumed": "I’ll sort it and stand watch while you work."
   },
   {
-    "icon": "oc_aurelian_dreyar_f2f61c7d",
+    "icon": "oc_aurelian_dreyar_f2f61c7d", hudTheme: "silver",
     "name": "Aurelian Dreyar",
     "voice": "Aurelian",
     "trait": "Soft-spoken and stubbornly protective",
@@ -169,7 +180,7 @@ export const appearances = [
     "sortingResumed": "I’ll put everything away for you."
   },
   {
-    "icon": "oc_caelum_drayven_clive_19ff5f63",
+    "icon": "oc_caelum_drayven_clive_19ff5f63", hudTheme: "silver",
     "name": "Caelum Drayven Clive",
     "voice": "Caelum",
     "trait": "Soft-spoken, affectionate, stubborn",
@@ -183,7 +194,7 @@ export const appearances = [
     "sortingResumed": "I’ll put everything away for you."
   },
   {
-    "icon": "oc_silas_noctis_virelle_75a91692",
+    "icon": "oc_silas_noctis_virelle_75a91692", hudTheme: "silver",
     "name": "Silas Noctis Virelle",
     "voice": "Silas",
     "trait": "Patient, observant, dryly funny",
@@ -197,7 +208,7 @@ export const appearances = [
     "sortingResumed": "I’ll put the supplies where they fit."
   },
   {
-    "icon": "oc_aoi_takami_05685620",
+    "icon": "oc_aoi_takami_05685620", hudTheme: "blue",
     "name": "Aoi Takami",
     "voice": "Aoi",
     "trait": "Independent, composed, deeply protective",
@@ -211,7 +222,7 @@ export const appearances = [
     "sortingResumed": "I’ll sort it and stand watch while you work."
   },
   {
-    "icon": "oc_lucien_kurose_67d60195",
+    "icon": "oc_lucien_kurose_67d60195", hudTheme: "rose",
     "name": "Lucien Kurose",
     "voice": "Lucien",
     "trait": "Charming, perceptive, fiercely loyal",
@@ -225,7 +236,7 @@ export const appearances = [
     "sortingResumed": "Places, everyone. It’s time to sort."
   },
   {
-    "icon": "oc_renka_todoroki_b6e9fda0",
+    "icon": "oc_renka_todoroki_b6e9fda0", hudTheme: "red",
     "name": "Renka Todoroki",
     "voice": "Renka",
     "trait": "Reserved, elegant, quietly sharp",
@@ -239,7 +250,7 @@ export const appearances = [
     "sortingResumed": "I’ll see that everything reaches the appropriate chest."
   },
   {
-    "icon": "oc_reiji_aizawa_yamada_ebeae5a1",
+    "icon": "oc_reiji_aizawa_yamada_ebeae5a1", hudTheme: "blue",
     "name": "Reiji Aizawa-Yamada",
     "voice": "Reiji",
     "trait": "Composed, stubborn, quietly mischievous",
@@ -253,7 +264,7 @@ export const appearances = [
     "sortingResumed": "I’ll put the supplies where they fit."
   },
   {
-    "icon": "oc_sora_aizawa_yamada_star_touched_shadow_05082cda",
+    "icon": "oc_sora_aizawa_yamada_star_touched_shadow_05082cda", hudTheme: "blue",
     "name": "Sora Aizawa-Yamada — “Star-Touched Shadow”",
     "voice": "Sora",
     "trait": "Restless, curious, star-struck",
@@ -267,7 +278,7 @@ export const appearances = [
     "sortingResumed": "Fine, even the shiny things go in their proper chests."
   },
   {
-    "icon": "oc_kai_kageyama_819d72d4",
+    "icon": "oc_kai_kageyama_819d72d4", hudTheme: "silver",
     "name": "Kai Kageyama",
     "voice": "Kai",
     "trait": "Disciplined, reserved, quietly loyal",
@@ -281,7 +292,7 @@ export const appearances = [
     "sortingResumed": "I’ll sort it and stand watch while you work."
   },
   {
-    "icon": "oc_ritsuki_aizawa_yamada_9f390492",
+    "icon": "oc_ritsuki_aizawa_yamada_9f390492", hudTheme: "blue",
     "name": "Ritsuki Aizawa-Yamada",
     "voice": "Ritsuki",
     "trait": "Gentle, theatrical, easily flustered",
@@ -295,7 +306,7 @@ export const appearances = [
     "sortingResumed": "Places, everyone. It’s time to sort."
   },
   {
-    "icon": "oc_yukito_takami_aizawa_579a0d10",
+    "icon": "oc_yukito_takami_aizawa_579a0d10", hudTheme: "blue",
     "name": "Yukito Takami-Aizawa",
     "voice": "Yukito",
     "trait": "Mischievous, stubborn, secretly sensitive",
@@ -309,7 +320,7 @@ export const appearances = [
     "sortingResumed": "Fine, even the shiny things go in their proper chests."
   },
   {
-    "icon": "oc_renji_takami_todoroki_a292b177",
+    "icon": "oc_renji_takami_todoroki_a292b177", hudTheme: "red",
     "name": "Renji Takami-Todoroki",
     "voice": "Renji",
     "trait": "Cocky, impulsive, quietly affectionate",
@@ -323,7 +334,7 @@ export const appearances = [
     "sortingResumed": "I’ve got the chests. Keep going."
   },
   {
-    "icon": "oc_akito_kazehane_e584c413",
+    "icon": "oc_akito_kazehane_e584c413", hudTheme: "gold",
     "name": "Akito Kazehane",
     "voice": "Akito",
     "trait": "Quiet, affectionate, easily embarrassed",
@@ -337,7 +348,7 @@ export const appearances = [
     "sortingResumed": "I’ll put everything away for you."
   },
   {
-    "icon": "oc_yukito_todoroki_d76553ca",
+    "icon": "oc_yukito_todoroki_d76553ca", hudTheme: "blue",
     "name": "Yukito Todoroki",
     "voice": "Yukito",
     "trait": "Playful, stubborn, affectionate",
@@ -351,7 +362,7 @@ export const appearances = [
     "sortingResumed": "Fine, even the shiny things go in their proper chests."
   },
   {
-    "icon": "oc_kuroya_todoroki_aac120be",
+    "icon": "oc_kuroya_todoroki_aac120be", hudTheme: "orchid",
     "name": "Kuroya Todoroki",
     "voice": "Kuroya",
     "trait": "Territorial, suspicious, fiercely loyal",
@@ -365,7 +376,7 @@ export const appearances = [
     "sortingResumed": "I’ll sort it and stand watch while you work."
   },
   {
-    "icon": "oc_shion_todoroki_1ca1cffc",
+    "icon": "oc_shion_todoroki_1ca1cffc", hudTheme: "silver",
     "name": "Shion Todoroki",
     "voice": "Shion",
     "trait": "Reserved, gentle, quietly stubborn",
@@ -379,7 +390,7 @@ export const appearances = [
     "sortingResumed": "I’ll put everything away for you."
   },
   {
-    "icon": "oc_akihiro_takami_a592bad1",
+    "icon": "oc_akihiro_takami_a592bad1", hudTheme: "rose",
     "name": "Akihiro Takami",
     "voice": "Akihiro",
     "trait": "Quiet, observant, dryly sarcastic",
@@ -393,7 +404,7 @@ export const appearances = [
     "sortingResumed": "I’ll put the supplies where they fit."
   },
   {
-    "icon": "oc_raiki_takami_todoroki_7e2b3747",
+    "icon": "oc_raiki_takami_todoroki_7e2b3747", hudTheme: "red",
     "name": "Raiki Takami-Todoroki",
     "voice": "Raiki",
     "trait": "Impulsive, affectionate, mischievous",
@@ -407,7 +418,7 @@ export const appearances = [
     "sortingResumed": "I’ve got the chests. Keep going."
   },
   {
-    "icon": "oc_kuroha_takami_todoroki_bfe1a9cd",
+    "icon": "oc_kuroha_takami_todoroki_bfe1a9cd", hudTheme: "orchid",
     "name": "Kuroha Takami-Todoroki",
     "voice": "Kuroha",
     "trait": "Chaotic, clingy, playful",
@@ -421,7 +432,7 @@ export const appearances = [
     "sortingResumed": "Fine, even the shiny things go in their proper chests."
   },
   {
-    "icon": "oc_kaien_todoroki_a95e44ec",
+    "icon": "oc_kaien_todoroki_a95e44ec", hudTheme: "gold",
     "name": "Kaien Todoroki",
     "voice": "Kaien",
     "trait": "Laid-back, confident, fiercely protective",
@@ -435,7 +446,7 @@ export const appearances = [
     "sortingResumed": "I’ve got the chests. Keep going."
   },
   {
-    "icon": "oc_kazuki_aizawa_yamada_b6962b6f",
+    "icon": "oc_kazuki_aizawa_yamada_b6962b6f", hudTheme: "red",
     "name": "Kazuki Aizawa-Yamada",
     "voice": "Kazuki",
     "trait": "Shy, loyal, quietly sarcastic",
@@ -449,7 +460,7 @@ export const appearances = [
     "sortingResumed": "I’ll put everything away for you."
   },
   {
-    "icon": "oc_renjiro_aizawa_yamada_425ddac1",
+    "icon": "oc_renjiro_aizawa_yamada_425ddac1", hudTheme: "red",
     "name": "Renjiro Aizawa-Yamada",
     "voice": "Renjiro",
     "trait": "Sleepy, mischievous, fiercely loyal",
@@ -463,7 +474,7 @@ export const appearances = [
     "sortingResumed": "I’ll put everything away for you."
   },
   {
-    "icon": "oc_kohaku_todoroki_786395fe",
+    "icon": "oc_kohaku_todoroki_786395fe", hudTheme: "red",
     "name": "Kohaku Todoroki",
     "voice": "Kohaku",
     "trait": "Gentle, bashful, protective",
@@ -477,7 +488,7 @@ export const appearances = [
     "sortingResumed": "I’ll put everything away for you."
   },
   {
-    "icon": "oc_minato_shiosaki_b77b3e32",
+    "icon": "oc_minato_shiosaki_b77b3e32", hudTheme: "aqua",
     "name": "Minato Shiosaki",
     "voice": "Minato",
     "trait": "Shy with strangers, playful with friends",
@@ -491,7 +502,7 @@ export const appearances = [
     "sortingResumed": "Fine, even the shiny things go in their proper chests."
   },
   {
-    "icon": "oc_akihiro_yamada_aizawa_d5f04d83",
+    "icon": "oc_akihiro_yamada_aizawa_d5f04d83", hudTheme: "rose",
     "name": "Akihiro Yamada-Aizawa",
     "voice": "Akihiro",
     "trait": "Soft-spoken, affectionate, observant",
@@ -505,7 +516,7 @@ export const appearances = [
     "sortingResumed": "I’ll put everything away for you."
   },
   {
-    "icon": "oc_haruki_sakamata_60138914",
+    "icon": "oc_haruki_sakamata_60138914", hudTheme: "lime",
     "name": "Haruki Sakamata",
     "voice": "Haruki",
     "trait": "Playful, clingy, surprisingly stubborn",
@@ -519,7 +530,7 @@ export const appearances = [
     "sortingResumed": "I’ve got the chests. Keep going."
   },
   {
-    "icon": "oc_riku_aizawa_takami_todoroki_3d1db200",
+    "icon": "oc_riku_aizawa_takami_todoroki_3d1db200", hudTheme: "rose",
     "name": "Riku Aizawa - Takami-Todoroki",
     "voice": "Riku",
     "trait": "Confident, sarcastic, thrill-seeking",
@@ -533,7 +544,7 @@ export const appearances = [
     "sortingResumed": "I’ve got the chests. Keep going."
   },
   {
-    "icon": "oc_ren_aizawa_takami_todoroki_afbcc615",
+    "icon": "oc_ren_aizawa_takami_todoroki_afbcc615", hudTheme: "blue",
     "name": "Ren Aizawa - Takami-Todoroki",
     "voice": "Ren",
     "trait": "Strategic, deadpan, quietly affectionate",
@@ -547,7 +558,7 @@ export const appearances = [
     "sortingResumed": "I’ll put the supplies where they fit."
   },
   {
-    "icon": "oc_renji_dreyar_f8a27db7",
+    "icon": "oc_renji_dreyar_f8a27db7", hudTheme: "orchid",
     "name": "Renji Dreyar",
     "voice": "Renji",
     "trait": "Sarcastic, perceptive, guardedly affectionate",
@@ -561,7 +572,7 @@ export const appearances = [
     "sortingResumed": "I’ll put the supplies where they fit."
   },
   {
-    "icon": "oc_akio_vermilion_e403fe3a",
+    "icon": "oc_akio_vermilion_e403fe3a", hudTheme: "gold",
     "name": "Akio Vermilion",
     "voice": "Akio",
     "trait": "Quiet, stubborn, fiercely loyal",
@@ -575,7 +586,7 @@ export const appearances = [
     "sortingResumed": "I’ll sort it and stand watch while you work."
   },
   {
-    "icon": "oc_akito_takami_todoroki_3f70b00a",
+    "icon": "oc_akito_takami_todoroki_3f70b00a", hudTheme: "red",
     "name": "Akito Takami-Todoroki",
     "voice": "Akito",
     "trait": "Moody, mischievous, secretly sensitive",
@@ -589,7 +600,7 @@ export const appearances = [
     "sortingResumed": "Fine, even the shiny things go in their proper chests."
   },
   {
-    "icon": "oc_sora_takami_b75aef73",
+    "icon": "oc_sora_takami_b75aef73", hudTheme: "silver",
     "name": "Sora Takami",
     "voice": "Sora",
     "trait": "Serene, teasing, quietly rebellious",
@@ -603,7 +614,7 @@ export const appearances = [
     "sortingResumed": "I’ll see that everything reaches the appropriate chest."
   },
   {
-    "icon": "oc_ace_b552bf59",
+    "icon": "oc_ace_b552bf59", hudTheme: "orchid",
     "name": "Ace",
     "voice": "Ace",
     "trait": "Guarded, observant, meticulous",
@@ -617,7 +628,7 @@ export const appearances = [
     "sortingResumed": "I’ll put the supplies where they fit."
   },
   {
-    "icon": "oc_ace_74dda3e9",
+    "icon": "oc_ace_74dda3e9", hudTheme: "blue",
     "name": "Ace (Chibi 2)",
     "voice": "Ace",
     "trait": "Reserved, thoughtful, precise",
@@ -631,7 +642,7 @@ export const appearances = [
     "sortingResumed": "I’ll see that everything reaches the appropriate chest."
   },
   {
-    "icon": "oc_akito_takami_todoroki_7afc3c30",
+    "icon": "oc_akito_takami_todoroki_7afc3c30", hudTheme: "red",
     "name": "Akito Takami-Todoroki (Chibi 2)",
     "voice": "Akito",
     "trait": "Short-tempered, protective, quietly affectionate",
@@ -645,7 +656,7 @@ export const appearances = [
     "sortingResumed": "I’ll sort it and stand watch while you work."
   },
   {
-    "icon": "oc_aelius_clive_ba2acdab",
+    "icon": "oc_aelius_clive_ba2acdab", hudTheme: "blue",
     "name": "Aelius Clive",
     "voice": "Aelius",
     "trait": "Cheerful, affectionate, mischievously confident",
@@ -659,7 +670,7 @@ export const appearances = [
     "sortingResumed": "Places, everyone. It’s time to sort."
   },
   {
-    "icon": "oc_ace_morningstar_death_9431d9a5",
+    "icon": "oc_ace_morningstar_death_9431d9a5", hudTheme: "red",
     "name": "Ace Morningstar Death",
     "voice": "Ace",
     "trait": "Calm, guarded, intimidatingly protective",
@@ -673,7 +684,7 @@ export const appearances = [
     "sortingResumed": "I’ll sort it and stand watch while you work."
   },
   {
-    "icon": "oc_akira_morningstar_70b33f54",
+    "icon": "oc_akira_morningstar_70b33f54", hudTheme: "red",
     "name": "Akira Morningstar",
     "voice": "Akira",
     "trait": "Alert, intense, sensitive to loud noise",
@@ -687,7 +698,7 @@ export const appearances = [
     "sortingResumed": "I’ll sort it and stand watch while you work."
   },
   {
-    "icon": "oc_silas_veyr_morningstar_7256297b",
+    "icon": "oc_silas_veyr_morningstar_7256297b", hudTheme: "silver",
     "name": "Silas Veyr Morningstar",
     "voice": "Silas",
     "trait": "Calculating, charismatic, composed",
@@ -701,7 +712,7 @@ export const appearances = [
     "sortingResumed": "I’ll see that everything reaches the appropriate chest."
   },
   {
-    "icon": "oc_azriel_tsukiyo_morningstar_0948c750",
+    "icon": "oc_azriel_tsukiyo_morningstar_0948c750", hudTheme: "orchid",
     "name": "Azriel Tsukiyo Morningstar",
     "voice": "Azriel",
     "trait": "Gentle, mysterious, quietly playful",
@@ -715,7 +726,7 @@ export const appearances = [
     "sortingResumed": "I’ll put everything away for you."
   },
   {
-    "icon": "oc_nyx_aoi_morningstar_c3d2d0a8",
+    "icon": "oc_nyx_aoi_morningstar_c3d2d0a8", hudTheme: "rose",
     "name": "Nyx Aoi Morningstar",
     "voice": "Nyx",
     "trait": "Artistic, sensitive, quietly sarcastic",
@@ -729,7 +740,7 @@ export const appearances = [
     "sortingResumed": "I’ll put the supplies where they fit."
   },
   {
-    "icon": "oc_noctis_umbra_morningstar_9aef306b",
+    "icon": "oc_noctis_umbra_morningstar_9aef306b", hudTheme: "orchid",
     "name": "Noctis Umbra Morningstar",
     "voice": "Noctis",
     "trait": "Intelligent, stubborn, quietly affectionate",
@@ -743,7 +754,7 @@ export const appearances = [
     "sortingResumed": "I’ll sort it and stand watch while you work."
   },
   {
-    "icon": "oc_haruki_felis_dreyar_e7612d66",
+    "icon": "oc_haruki_felis_dreyar_e7612d66", hudTheme: "red",
     "name": "Haruki Felis Dreyar",
     "voice": "Haruki",
     "trait": "Shy, sleepy, gently mischievous",
@@ -757,7 +768,7 @@ export const appearances = [
     "sortingResumed": "I’ll put everything away for you."
   },
   {
-    "icon": "oc_renji_clive_fff3e16c",
+    "icon": "oc_renji_clive_fff3e16c", hudTheme: "gold",
     "name": "Renji Clive",
     "voice": "Renji",
     "trait": "Perceptive, sarcastic, close with trusted friends",
