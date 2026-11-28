@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Preview the Mizuki HUD and download Chibi Companions for Minecraft Bedrock.">
+<title>Mizuki Add-on · Minecraft Bedrock</title>
+<link rel="stylesheet" href="style.css">
+<script src="companion-themes.js" defer></script>
+<script src="preview.js" defer></script>
+</head>
+<body>
+<header class="wrap">
+  <a class="brand" href="./"><span aria-hidden="true">✦</span> Mizuki Add-on</a>
+  <nav aria-label="Main navigation"><a href="#title-screen">Main menu</a><a href="#preview">HUD</a><a href="#install">Install</a></nav>
+</header>
+<main class="wrap">
+  <section class="hero" aria-labelledby="title">
+    <div class="intro">
+      <p class="eyebrow">MINECRAFT BEDROCK</p>
+      <h1 id="title">Mizuki <em>HUD</em></h1>
+      <p class="lede">A Dawn-inspired HUD with live companion and navigation readouts, matching container screens and a twilight main menu.</p>
+      <a class="download" href="downloads/Chibi-Companions-Mizuki-3.7.7.mcaddon" download>Download add-on</a>
+      <p class="meta">Version 3.7.7 · .mcaddon · Android, iOS and Switch via Realms</p>
+    </div>
+    <figure id="preview">
+      <div class="figure-head"><strong>HUD preview</strong><span>Illustration</span></div>
+      <div class="scene">
+        <div class="sky" aria-hidden="true"></div>
+        <img class="mizuki" src="art/mizuki.webp" alt="Mizuki companion artwork">
+        <div class="hud">
+          <div class="hud-readouts" hidden></div>
+          <div class="meters">
+            <div id="hearts" aria-label="Health: eight and a half hearts" role="img"></div>
+            <div id="hunger" aria-label="Hunger: nine full icons" role="img"></div>
+          </div>
+          <div class="xp" aria-label="Experience level 12" role="img"><span>12</span></div>
+          <div id="slots" class="slots" aria-label="Preview hotbar slots"></div>
+        </div>
+      </div>
+      <figcaption>Choose a slot or HUD mode to preview it.</figcaption>
+      <div class="theme-picker">
+        <label for="companion-theme">Preview a companion HUD theme</label>
+        <select id="companion-theme"></select>
+        <span id="theme-name" aria-live="polite"></span>
+      </div>
+      <div class="hud-options" role="group" aria-label="Preview HUD mode">
+        <button type="button" data-hud="off" aria-pressed="true">Off</button>
+        <button type="button" data-hud="companion" aria-pressed="false">Companion</button>
+        <button type="button" data-hud="navigation" aria-pressed="false">Navigation</button>
+        <button type="button" data-hud="both" aria-pressed="false">Both</button>
+      </div>
+    </figure>
+  </section>
+  <p class="hud-instructions">In-game, use the <strong>Snowdrop Whistle</strong> and select <strong>HUD · Change mode</strong> to cycle the readouts. Companion mode is the default for players who have never chosen a HUD setting. Companion mode shows activity, health and distance. Navigation mode shows your heading and XYZ coordinates. Choose <strong>Change Appearance</strong> to switch companions. The active companion palette automatically colours the readout accents. Bed guidance takes priority when active.</p>
+  <section id="title-screen" class="title-section" aria-labelledby="menu-title">
+    <h2 id="menu-title">Minecraft main menu</h2>
+    <figure class="title-figure">
+      <div class="title-scene" role="img" aria-label="Illustration of Minecraft's main menu with a lilac twilight landscape and charcoal buttons">
+        <strong>Minecraft</strong>
+        <ul aria-hidden="true"><li>Play</li><li>Settings</li><li>Marketplace</li><li>Dressing Room</li></ul>
+      </div>
+      <figcaption>The twilight background now fills the title screen on wide displays.</figcaption>
+    </figure>
+    <p class="notice"><strong>Mobile and Windows:</strong> After import, go to <strong>Settings → Global Resources → My Packs</strong> and activate <strong>Chibi Companions — Mizuki Resources</strong>. Return to the main menu to see the theme. The world still needs the behavior pack for companions.</p>
+    <p class="notice"><strong>Nintendo Switch:</strong> Realms can apply the pack inside the Realm. The Switch main menu requires a global pack, which the Realm does not install.</p>
+  </section>
+  <section id="containers" aria-labelledby="container-title">
+    <h2 id="container-title">Container screens</h2>
+    <div class="container-picker" role="group" aria-label="Choose a screen to preview">
+      <button type="button" data-screen="inventory" aria-pressed="true">Inventory</button>
+      <button type="button" data-screen="crafting" aria-pressed="false">Crafting table</button>
+      <button type="button" data-screen="furnace" aria-pressed="false">Furnaces</button>
+      <button type="button" data-screen="chest" aria-pressed="false">Chests</button>
+    </div>
+    <figure class="container-figure">
+      <div id="container-preview" class="container-preview" role="img"></div>
+      <figcaption id="container-caption" aria-live="polite">Illustration of the inventory palette.</figcaption>
+    </figure>
+  </section>
+  <section id="install" aria-labelledby="install-title">
+    <p class="eyebrow">SETUP</p>
+    <h2 id="install-title">Install on your device</h2>
+    <div class="guides">
+      <article><h3>Android &amp; iOS</h3>
+        <ol><li>Download the add-on and open the .mcaddon file with Minecraft.</li><li>Edit a Bedrock world and activate Mizuki under <strong>Behavior Packs</strong>. Confirm Mizuki also appears under <strong>Resource Packs</strong>.</li><li>Launch the world and check the hotbar in Survival.</li></ol>
+      </article>
+      <article><h3>Nintendo Switch</h3>
+        <ol><li>Import the add-on on mobile or Windows using Minecraft Bedrock.</li><li>Activate the packs on a world and upload it to a Bedrock Realm.</li><li>Join that Realm on your Switch to download its active packs.</li></ol>
+      </article>
+    </div>
+    <p class="notice">The package passed its automated checks. The themed screens still need an in-game check on the target devices. <a href="https://help.minecraft.net/hc/en-us/articles/24120525083533-How-to-activate-Minecraft-Add-On">Minecraft’s add-on guide</a></p>
+  </section>
+</main>
+<footer class="wrap"><span>Mizuki Chibi Companions</span><a href="https://github.com/Black-Dark/Mizuki_Addon">Project on GitHub</a></footer>
+</body>
+</html>

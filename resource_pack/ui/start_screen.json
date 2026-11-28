@@ -1,0 +1,96 @@
+{
+  "namespace": "start",
+  "start_screen@common.base_screen": {
+    "$screen_bg_content": "start.mizuki_title_background"
+  },
+  "mizuki_title_background": {
+    "type": "image",
+    "texture": "textures/ui/mizuki_title/twilight",
+    "size": [
+      "100%",
+      "100%"
+    ],
+    "keep_ratio": false,
+    "fill": true
+  },
+  "main_button@common_buttons.light_text_button": {
+    "$default_button_texture": "textures/ui/mizuki_title/idle",
+    "$hover_button_texture": "textures/ui/mizuki_title/focus",
+    "$pressed_button_texture": "textures/ui/mizuki_title/pressed",
+    "$default_text_color": [
+      0.98,
+      0.94,
+      1.0
+    ],
+    "$hover_text_color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "$pressed_text_color": [
+      0.98,
+      0.94,
+      1.0
+    ]
+  },
+  "main_content_button@common_buttons.light_content_button": {
+    "$default_button_texture": "textures/ui/mizuki_title/idle",
+    "$hover_button_texture": "textures/ui/mizuki_title/focus",
+    "$pressed_button_texture": "textures/ui/mizuki_title/pressed",
+    "$default_text_color": [
+      0.98,
+      0.94,
+      1.0
+    ],
+    "$hover_text_color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "$pressed_text_color": [
+      0.98,
+      0.94,
+      1.0
+    ]
+  },
+  "main_button_dark@common_buttons.dark_text_button": {
+    "$default_button_texture": "textures/ui/mizuki_title/idle",
+    "$hover_button_texture": "textures/ui/mizuki_title/focus",
+    "$pressed_button_texture": "textures/ui/mizuki_title/pressed",
+    "$default_text_color": [
+      0.98,
+      0.94,
+      1.0
+    ],
+    "$hover_text_color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "$pressed_text_color": [
+      0.98,
+      0.94,
+      1.0
+    ]
+  },
+  "dressing_room_button@common_buttons.light_text_form_fitting_button": {
+    "$default_button_texture": "textures/ui/mizuki_title/idle",
+    "$hover_button_texture": "textures/ui/mizuki_title/focus",
+    "$pressed_button_texture": "textures/ui/mizuki_title/pressed",
+    "$default_text_color": [
+      0.98,
+      0.94,
+      1.0
+    ],
+    "$hover_text_color": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "$pressed_text_color": [
+      0.98,
+      0.94,
+      1.0
+    ]
+  }
+}

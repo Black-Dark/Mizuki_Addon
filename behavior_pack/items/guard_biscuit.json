@@ -1,0 +1,18 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:item": {
+    "description": {
+      "identifier": "cc:guard_biscuit",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:display_name": {
+        "value": "item.cc:guard_biscuit.name"
+      },
+      "minecraft:icon": "cc_guard_biscuit",
+      "minecraft:max_stack_size": 16
+    }
+  }
+}

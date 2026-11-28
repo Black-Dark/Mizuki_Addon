@@ -2,10 +2,29 @@
   "resource_pack_name": "chibi_companions_mizuki",
   "texture_name": "atlas.items",
   "texture_data": {
-    "cc_snowdrop_whistle": { "textures": "textures/items/snowdrop_whistle" },
-    "cc_moving_box": { "textures": "textures/items/moving_box" },
-    "cc_packing_tape": { "textures": "textures/items/packing_tape" },
-    "cc_companion_treat": { "textures": "textures/items/companion_treat" },
-    "cc_companion_toy": { "textures": "textures/items/companion_toy" }
+    "cc_snowdrop_whistle": {
+      "textures": "textures/items/snowdrop_whistle"
+    },
+    "cc_moving_box": {
+      "textures": "textures/items/moving_box"
+    },
+    "cc_packing_tape": {
+      "textures": "textures/items/packing_tape"
+    },
+    "cc_companion_treat": {
+      "textures": "textures/items/companion_treat"
+    },
+    "cc_companion_toy": {
+      "textures": "textures/items/companion_toy"
+    },
+    "cc_healing_salve": {
+      "textures": "textures/items/healing_salve"
+    },
+    "cc_guard_biscuit": {
+      "textures": "textures/items/guard_biscuit"
+    },
+    "cc_camp_tag": {
+      "textures": "textures/items/camp_tag"
+    }
   }
 }

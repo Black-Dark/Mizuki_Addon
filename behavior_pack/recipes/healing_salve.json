@@ -1,0 +1,31 @@
+{
+  "format_version": "1.21.90",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "cc:healing_salve"
+    },
+    "tags": [
+      "cc_companion_workbench"
+    ],
+    "ingredients": [
+      {
+        "item": "minecraft:honey_bottle"
+      },
+      {
+        "item": "minecraft:dried_kelp"
+      },
+      {
+        "item": "minecraft:sweet_berries"
+      }
+    ],
+    "unlock": [
+      {
+        "item": "minecraft:honey_bottle"
+      }
+    ],
+    "result": {
+      "item": "cc:healing_salve",
+      "count": 2
+    }
+  }
+}
