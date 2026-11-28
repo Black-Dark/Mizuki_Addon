@@ -36,6 +36,8 @@ try {
     $packs = (New-Item -ItemType Directory (Join-Path $temp.FullName packs)).FullName
     $stagedResources = Join-Path $temp.FullName resource_pack
     Copy-Item -LiteralPath $resources -Destination $stagedResources -Recurse
+    node (Join-Path $root scripts/build-ui-palettes.mjs) $stagedResources
+    if ($LASTEXITCODE) { throw 'Could not generate the UI palettes.' }
     # Copy the authored archive models, atlases, and menu icons into the staged pack.
     $artwork = [System.IO.Compression.ZipFile]::OpenRead((Join-Path $root 'Chibi-Companions-Archive-Art.zip'))
     try {

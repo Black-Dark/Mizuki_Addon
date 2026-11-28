@@ -7,7 +7,7 @@ To test the download locally, run the repository build, then copy the generated 
 ```powershell
 ./build.ps1
 New-Item -ItemType Directory -Force website/downloads
-Copy-Item dist/Chibi-Companions-Mizuki-3.7.7.mcaddon website/downloads/
+Copy-Item dist/Chibi-Companions-Mizuki-3.8.0.mcaddon website/downloads/
 ```
 
 Serve the `website` directory with a static HTTP server. The published site and current download are available at [Mizuki Add-on](https://mizuki-addon.penney846.chatgpt.site/).

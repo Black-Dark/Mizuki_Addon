@@ -6,8 +6,8 @@
     "uuid": "966cba6a-1b13-49b7-a42c-4c50fa4913b8",
     "version": [
       3,
-      7,
-      7
+      8,
+      0
     ],
     "min_engine_version": [
       1,
@@ -21,9 +21,59 @@
       "uuid": "edd03f2e-07a8-4d36-8877-f38ee175f548",
       "version": [
         3,
-        7,
-        7
+        8,
+        0
       ]
+    }
+  ],
+  "subpacks": [
+    {
+      "folder_name": "blue",
+      "name": "Storm Blue",
+      "memory_tier": 1,
+      "memory_performance_tier": 1
+    },
+    {
+      "folder_name": "aqua",
+      "name": "Frost Aqua",
+      "memory_tier": 1,
+      "memory_performance_tier": 1
+    },
+    {
+      "folder_name": "silver",
+      "name": "Moonlight",
+      "memory_tier": 1,
+      "memory_performance_tier": 1
+    },
+    {
+      "folder_name": "red",
+      "name": "Ember",
+      "memory_tier": 1,
+      "memory_performance_tier": 1
+    },
+    {
+      "folder_name": "gold",
+      "name": "Sun Gold",
+      "memory_tier": 1,
+      "memory_performance_tier": 1
+    },
+    {
+      "folder_name": "rose",
+      "name": "Wild Rose",
+      "memory_tier": 1,
+      "memory_performance_tier": 1
+    },
+    {
+      "folder_name": "lime",
+      "name": "Spring Green",
+      "memory_tier": 1,
+      "memory_performance_tier": 1
+    },
+    {
+      "folder_name": "orchid",
+      "name": "Amethyst",
+      "memory_tier": 1,
+      "memory_performance_tier": 1
     }
   ]
 }
